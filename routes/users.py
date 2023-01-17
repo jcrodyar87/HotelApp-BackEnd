@@ -18,32 +18,32 @@ def get_db():
     finally:
         db.close()
 
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-@router.get("/",response_model=List[schemas.User])
+@router.get("/",response_model=List[schemas.User], response_model_exclude={'password'})
 async def show_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
     return users
 
-@router.post("/",response_model=schemas.User)
+@router.post("/",response_model=schemas.User, response_model_exclude={'password'})
 async def create_user(user_params: schemas.User, db: Session=Depends(get_db)):
     user = models.User(
         username = user_params.username,
         firstname = user_params.firstname,
         lastname = user_params.lastname,
         password = get_password_hash(user_params.password),
-        status = user_params.status
+        status = user_params.status,
+        role_id = user_params.role_id
         )
     db.add(user)
     db.commit()
     db.refresh(user)
     return user
 
-@router.put("/{id}",response_model=schemas.User)
+@router.put("/{id}",response_model=schemas.User, response_model_exclude={'password'})
 async def update_user(id: int, user_params: schemas.UserUpdate, db: Session=Depends(get_db)):
     user = db.query(models.User).filter_by(id=id).first()
     user.username = user_params.username
@@ -51,6 +51,7 @@ async def update_user(id: int, user_params: schemas.UserUpdate, db: Session=Depe
     user.lastname = user_params.lastname
     user.password = user_params.password
     user.status = user_params.status
+    user.role_id = user_params.role_id
     db.commit()
     db.refresh(user)
     return user

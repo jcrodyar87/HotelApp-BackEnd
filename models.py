@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Numeric, Text
+from sqlalchemy import Column, Integer, String, Numeric, Text, ForeignKey
 from config.database import Base
+from sqlalchemy.orm import relationship
 
 class Room(Base):
     __tablename__ = "room"
@@ -23,6 +24,16 @@ class Client(Base):
     email = Column(String(150))
     status = Column(Integer)
 
+class Role(Base):
+    __tablename__ = "role"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200))
+    modules = Column(Text())
+    status = Column(Integer)
+
+    user = relationship("User", back_populates="role")
+
 class User(Base):
     __tablename__ = "user"
 
@@ -32,11 +43,6 @@ class User(Base):
     lastname = Column(String(250))
     password = Column(String(250))
     status = Column(Integer)
+    role_id = Column(Integer, ForeignKey("role.id"))
 
-class Role(Base):
-    __tablename__ = "role"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(200))
-    modules = Column(Text())
-    status = Column(Integer)
+    role = relationship("Role", back_populates="user")

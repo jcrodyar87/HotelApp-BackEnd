@@ -24,23 +24,7 @@ def get_db():
 # openssl rand -hex 32
 SECRET_KEY = "344cd505052803822360339a8f20c5ab592345efd15caa51d62b4464c1b0a377"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-class User(BaseModel):
-    username: str
-    firstname: str
-    lastname: str
-    status: int
-
-class UserInDB(User):
-    password: str
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -87,20 +71,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme),  db: Session=Dep
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        user = db.query(models.User).filter_by(username=username).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="No se ha encontrado al usuario")
     except JWTError:
-        raise credentials_exception
-    user = get_user(db, username=token_data.username)
-    if user is None:
         raise credentials_exception
     return user
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.status == 0:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+#async def get_current_active_user(current_user: User = Depends(get_current_user)):
+#    if current_user.status == 0:
+#        raise HTTPException(status_code=400, detail="Inactive user")
+#    return current_user
 
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=schemas.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
@@ -115,10 +98,6 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/users/me/", response_model=User)
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    return current_user
-
-@router.get("/users/me/items/")
-async def read_own_items(current_user: User = Depends(get_current_active_user)):
-    return [{"item_id": "Foo", "owner": current_user.username}]
+@router.get("/me/",response_model=schemas.User, response_model_exclude={'password'})
+async def read_users_me(user: schemas.User = Depends(get_current_user)):
+    return  user

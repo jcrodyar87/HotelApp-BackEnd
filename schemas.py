@@ -50,13 +50,31 @@ class ClientUpdate(BaseModel):
     class Config:
         orm_mode=True
 
+class Role(BaseModel):
+    id: Optional[int]
+    name: str
+    modules: str
+    status: int
+
+    class Config:
+        orm_mode=True
+
+class RoleUpdate(BaseModel):
+    name: str
+    modules: str
+    status: int
+
+    class Config:
+        orm_mode=True
+
 class User(BaseModel):
     id: Optional[int]
     username: str
-    firstname: str
-    lastname: str
-    password: str
-    status: int
+    firstname: str | None = None
+    lastname: str | None = None
+    password: str | None = None
+    role_id: Optional[int] | None = None
+    status: int | None = None
 
     class Config:
         orm_mode=True
@@ -71,23 +89,12 @@ class UserUpdate(BaseModel):
     class Config:
         orm_mode=True
 
-class UserInDB(User):
-    password: str
+class UserAuth(User):
+    username: str
 
-class Role(BaseModel):
-    id: Optional[int]
-    name: str
-    modules: str
-    status: int
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
-    class Config:
-        orm_mode=True
-
-
-class RoleUpdate(BaseModel):
-    name: str
-    modules: str
-    status: int
-
-    class Config:
-        orm_mode=True
+class TokenData(BaseModel):
+    username: str | None = None
