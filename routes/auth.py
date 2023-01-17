@@ -26,16 +26,6 @@ SECRET_KEY = "344cd505052803822360339a8f20c5ab592345efd15caa51d62b4464c1b0a377"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "firstname": "John",
-        "lastname": "Doe",
-        "password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "status": 1,
-    }
-}
-
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -63,12 +53,13 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+    user = db.query(models.User).filter_by(username=username).first()
+    if not user:
+        return False
+    return user
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
+def authenticate_user(username: str, password: str, db: Session=Depends(get_db)):
+    user = get_user(db, username)
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -85,7 +76,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme),  db: Session=Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -99,7 +90,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(db, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -111,8 +102,8 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 
 @router.post("/token", response_model=Token)
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(get_db)):
+    user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
