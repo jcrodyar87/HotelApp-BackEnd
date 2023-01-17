@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime, date
 
 class Room(BaseModel):
     id: Optional[int]
@@ -92,9 +93,43 @@ class UserUpdate(BaseModel):
 class UserAuth(User):
     username: str
 
+class UserWithRole(User):
+    role: Optional[Role] = None
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 class TokenData(BaseModel):
     username: str | None = None
+
+class Reservation(BaseModel):
+    id: Optional[int]
+    checkin: date
+    checkout: date
+    total: float
+    done_payment: float
+    pending_payment: float
+    status: int | None = None
+    client_id: Optional[int] | None = None
+    room_id: Optional[int] | None = None
+
+    class Config:
+        orm_mode=True
+
+class ReservationUpdate(BaseModel):
+    checkin: date
+    checkout: date
+    total: float
+    done_payment: float
+    pending_payment: float
+    status: int | None = None
+    client_id: Optional[int] | None = None
+    room_id: Optional[int] | None = None
+
+    class Config:
+        orm_mode=True
+
+class ReservationWithClientAndRoom(Reservation):
+    client: Optional[Client] = None
+    room: Optional[Room] = None

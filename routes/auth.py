@@ -98,6 +98,6 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/me/",response_model=schemas.User, response_model_exclude={'password'})
-async def read_users_me(user: schemas.User = Depends(get_current_user)):
+@router.get("/me/",response_model=schemas.UserWithRole, response_model_exclude={'password'})
+async def read_current_user(user: schemas.UserWithRole = Depends(get_current_user)):
     return  user

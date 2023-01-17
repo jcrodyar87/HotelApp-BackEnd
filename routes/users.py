@@ -23,7 +23,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-@router.get("/",response_model=List[schemas.User], response_model_exclude={'password'})
+@router.get("/",response_model=List[schemas.UserWithRole], response_model_exclude={'password'})
 async def show_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
     return users
