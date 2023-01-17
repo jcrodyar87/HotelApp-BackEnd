@@ -51,6 +51,7 @@ class User(Base):
     lastname = Column(String(250))
     password = Column(String(250))
     status = Column(Integer)
+    token = Column(String(250), default=None)
     created_date = Column(DateTime, default=datetime.utcnow)
     role_id = Column(Integer, ForeignKey("role.id"))
 

@@ -23,17 +23,17 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-@router.get("/",response_model=List[schemas.UserWithRole], response_model_exclude={'password'})
+@router.get("/",response_model=List[schemas.UserWithRole], response_model_exclude={'password','token'})
 async def show_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
     return users
 
-@router.get("/{id}",response_model=schemas.User)
+@router.get("/{id}",response_model=schemas.User, response_model_exclude={'password','token'})
 async def show_user(id: int, db: Session = Depends(get_db)):
     user = db.query(models.User).filter_by(id=id).first()
     return user
 
-@router.post("/",response_model=schemas.User, response_model_exclude={'password'})
+@router.post("/",response_model=schemas.User, response_model_exclude={'password','token'})
 async def create_user(user_params: schemas.User, db: Session=Depends(get_db)):
     user = models.User(
         username = user_params.username,
@@ -48,7 +48,7 @@ async def create_user(user_params: schemas.User, db: Session=Depends(get_db)):
     db.refresh(user)
     return user
 
-@router.put("/{id}",response_model=schemas.User, response_model_exclude={'password'})
+@router.put("/{id}",response_model=schemas.User, response_model_exclude={'password','token'})
 async def update_user(id: int, user_params: schemas.UserUpdate, db: Session=Depends(get_db)):
     user = db.query(models.User).filter_by(id=id).first()
     user.username = user_params.username

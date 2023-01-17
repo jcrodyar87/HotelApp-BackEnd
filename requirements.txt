@@ -1,7 +1,9 @@
 pip install "fastapi[all]"
-pip install "uvicorn[standard]"
+pip install sqlalchemy
+pip install mysql
+pip install mysql-connector-python
 pip install "python-jose[cryptography]"
 pip install "passlib[bcrypt]"
-
+pip install "uvicorn[standard]"
 
 uvicorn main:app --reload

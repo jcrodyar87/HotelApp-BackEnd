@@ -90,8 +90,13 @@ class UserUpdate(BaseModel):
     class Config:
         orm_mode=True
 
-class UserAuth(User):
+class UserAuth(BaseModel):
     username: str
+
+class UserNewPassword(BaseModel):
+    username: str
+    password: str
+    token: str
 
 class UserWithRole(User):
     role: Optional[Role] = None
