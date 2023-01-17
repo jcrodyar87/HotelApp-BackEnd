@@ -53,6 +53,9 @@ class ClientUpdate(BaseModel):
 class User(BaseModel):
     id: Optional[int]
     username: str
+    firstname: str
+    lastname: str
+    password: str
     status: int
 
     class Config:
@@ -60,7 +63,13 @@ class User(BaseModel):
 
 class UserUpdate(BaseModel):
     username: str
+    firstname: str
+    lastname: str
+    password: str
     status: int
 
     class Config:
         orm_mode=True
+
+class UserInDB(User):
+    password: str

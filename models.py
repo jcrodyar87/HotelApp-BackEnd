@@ -28,4 +28,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(200))
+    firstname = Column(String(250))
+    lastname = Column(String(250))
+    password = Column(String(250))
     status = Column(Integer)
