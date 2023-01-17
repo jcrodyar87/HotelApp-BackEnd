@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 
 models.Base.metadata.create_all(bind=engine)
 
-router = APIRouter(prefix="/users",tags=["users"],responses={404:{"message":"No encontrado"}})
+router = APIRouter(prefix="/users",tags=["Users"],responses={404:{"message":"No encontrado"}})
 
 def get_db():
     try:

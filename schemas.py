@@ -73,3 +73,21 @@ class UserUpdate(BaseModel):
 
 class UserInDB(User):
     password: str
+
+class Role(BaseModel):
+    id: Optional[int]
+    name: str
+    modules: str
+    status: int
+
+    class Config:
+        orm_mode=True
+
+
+class RoleUpdate(BaseModel):
+    name: str
+    modules: str
+    status: int
+
+    class Config:
+        orm_mode=True

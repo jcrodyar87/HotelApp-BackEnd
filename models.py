@@ -32,3 +32,11 @@ class User(Base):
     lastname = Column(String(250))
     password = Column(String(250))
     status = Column(Integer)
+
+class Role(Base):
+    __tablename__ = "role"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200))
+    modules = Column(Text())
+    status = Column(Integer)

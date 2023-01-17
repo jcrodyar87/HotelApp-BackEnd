@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 models.Base.metadata.create_all(bind=engine)
 
-router = APIRouter(prefix="/auth",tags=["auth"],responses={404:{"message":"No encontrado"}})
+router = APIRouter(prefix="/auth",tags=["Authentication"],responses={404:{"message":"No encontrado"}})
 
 def get_db():
     try:
@@ -99,7 +99,6 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     if current_user.status == 0:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
-
 
 @router.post("/token", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(get_db)):

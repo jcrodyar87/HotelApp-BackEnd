@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 models.Base.metadata.create_all(bind=engine)
 
-router = APIRouter(prefix="/clients",tags=["clients"],responses={404:{"message":"No encontrado"}})
+router = APIRouter(prefix="/clients",tags=["Clients"],responses={404:{"message":"No encontrado"}})
 
 def get_db():
     try:
