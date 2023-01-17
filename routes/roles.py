@@ -18,12 +18,17 @@ def get_db():
         db.close()
 
 @router.get("/",response_model=List[schemas.Role])
-def show_roles(db: Session = Depends(get_db)):
+async def show_roles(db: Session = Depends(get_db)):
     roles = db.query(models.Role).all()
     return roles
 
+@router.get("/{id}",response_model=schemas.Role)
+async def show_role(id: int, db: Session = Depends(get_db)):
+    role = db.query(models.Role).filter_by(id=id).first()
+    return role
+
 @router.post("/",response_model=schemas.Role)
-def create_role(role_params: schemas.Role, db: Session=Depends(get_db)):
+async def create_role(role_params: schemas.Role, db: Session=Depends(get_db)):
     role = models.Role(
         name = role_params.name,
         modules = role_params.modules, 
@@ -35,7 +40,7 @@ def create_role(role_params: schemas.Role, db: Session=Depends(get_db)):
     return role
 
 @router.put("/{id}",response_model=schemas.Role)
-def update_role(id: int, role_params: schemas.RoleUpdate, db: Session=Depends(get_db)):
+async def update_role(id: int, role_params: schemas.RoleUpdate, db: Session=Depends(get_db)):
     role = db.query(models.Role).filter_by(id=id).first()
     role.name = role_params.name
     role.modules = role_params.modules

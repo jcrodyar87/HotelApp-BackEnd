@@ -28,6 +28,11 @@ async def show_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
     return users
 
+@router.get("/{id}",response_model=schemas.User)
+async def show_user(id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter_by(id=id).first()
+    return user
+
 @router.post("/",response_model=schemas.User, response_model_exclude={'password'})
 async def create_user(user_params: schemas.User, db: Session=Depends(get_db)):
     user = models.User(

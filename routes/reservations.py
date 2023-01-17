@@ -18,12 +18,17 @@ def get_db():
         db.close()
 
 @router.get("/",response_model=List[schemas.ReservationWithClientAndRoom])
-def show_reservations(db: Session = Depends(get_db)):
+async def show_reservations(db: Session = Depends(get_db)):
     reservations = db.query(models.Reservation).all()
     return reservations
 
+@router.get("/{id}",response_model=schemas.ReservationWithClientAndRoom)
+async def show_reservation(id: int, db: Session = Depends(get_db)):
+    reservation = db.query(models.Reservation).filter_by(id=id).first()
+    return reservation
+
 @router.post("/",response_model=schemas.Reservation)
-def create_reservation(reservation_params: schemas.Reservation, db: Session=Depends(get_db)):
+async def create_reservation(reservation_params: schemas.Reservation, db: Session=Depends(get_db)):
     reservation = models.Reservation(
         checkin = reservation_params.checkin, 
         checkout = reservation_params.checkout, 
@@ -40,7 +45,7 @@ def create_reservation(reservation_params: schemas.Reservation, db: Session=Depe
     return reservation
 
 @router.put("/{id}",response_model=schemas.Reservation)
-def update_reservation(id: int, reservation_params: schemas.ReservationUpdate, db: Session=Depends(get_db)):
+async def update_reservation(id: int, reservation_params: schemas.ReservationUpdate, db: Session=Depends(get_db)):
     reservation = db.query(models.Reservation).filter_by(id=id).first()
     reservation.checkin = reservation_params.checkin, 
     reservation.checkout = reservation_params.checkout, 

@@ -22,6 +22,11 @@ async def show_clients(db: Session = Depends(get_db)):
     clients = db.query(models.Client).all()
     return clients
 
+@router.get("/{id}",response_model=schemas.Client)
+async def show_client(id: int, db: Session = Depends(get_db)):
+    client = db.query(models.Client).filter_by(id=id).first()
+    return client
+
 @router.post("/",response_model=schemas.Client)
 async def create_client(client_params: schemas.Client, db: Session=Depends(get_db)):
     client = models.Client(

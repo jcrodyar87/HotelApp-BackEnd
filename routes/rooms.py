@@ -18,12 +18,17 @@ def get_db():
         db.close()
 
 @router.get("/",response_model=List[schemas.Room])
-def show_rooms(db: Session = Depends(get_db)):
+async def show_rooms(db: Session = Depends(get_db)):
     rooms = db.query(models.Room).all()
     return rooms
 
+@router.get("/{id}",response_model=schemas.Room)
+async def show_room(id: int, db: Session = Depends(get_db)):
+    room = db.query(models.Room).filter_by(id=id).first()
+    return room
+
 @router.post("/",response_model=schemas.Room)
-def create_room(room_params: schemas.Room, db: Session=Depends(get_db)):
+async def create_room(room_params: schemas.Room, db: Session=Depends(get_db)):
     room = models.Room(name = room_params.name, description = room_params.description, type = room_params.type, price = room_params.price, capacity = room_params.capacity, status = room_params.status)
     db.add(room)
     db.commit()
@@ -31,7 +36,7 @@ def create_room(room_params: schemas.Room, db: Session=Depends(get_db)):
     return room
 
 @router.put("/{id}",response_model=schemas.Room)
-def update_room(id: int, room_params: schemas.RoomUpdate, db: Session=Depends(get_db)):
+async def update_room(id: int, room_params: schemas.RoomUpdate, db: Session=Depends(get_db)):
     room = db.query(models.Room).filter_by(id=id).first()
     room.name = room_params.name
     room.description = room_params.description
