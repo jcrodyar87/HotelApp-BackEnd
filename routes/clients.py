@@ -1,32 +1,59 @@
+from typing import List
+from fastapi.params import Depends
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from config.database import SessionLocal, engine
+import schemas, models
+from sqlalchemy.orm import Session
+
+models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter(prefix="/clients",tags=["clients"],responses={404:{"message":"No encontrado"}})
 
-class Client(BaseModel):
-    id: int
-    firstname: str
-    lastname: str
-    document: str
-    phone: str
-    email: str
-    status: int
-
-clients_list = [Client(id=1, firstname="Juan", lastname="Rodriguez", document="44854480", phone="966744497", email="jcry87@gmail.com", status=1),
-                Client(id=2, firstname="Carlos", lastname="Yarmas", document="44854481", phone="966744498", email="jcry1987@gmail.com", status=1)]
-
-
-@router.get("/")
-async def clients():
-    return clients_list
-
-@router.get("/{id}")
-async def client(id: int):
-    return search_client(id)
-
-def search_client(id: int):
-    room = filter(lambda room: room.id == id, clients_list)
+def get_db():
     try:
-        return list(room)[0]
-    except:
-        raise HTTPException(status_code=404, detail="No se ha encontrado el cliente")
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
+
+@router.get("/",response_model=List[schemas.Client])
+async def show_clients(db: Session = Depends(get_db)):
+    clients = db.query(models.Client).all()
+    return clients
+
+@router.post("/",response_model=schemas.Client)
+async def create_client(client_params: schemas.Client, db: Session=Depends(get_db)):
+    client = models.Client(
+        firstname = client_params.firstname,
+        lastname = client_params.lastname, 
+        document = client_params.document, 
+        phone = client_params.phone, 
+        email = client_params.email, 
+        status = client_params.status
+        )
+    db.add(client)
+    db.commit()
+    db.refresh(client)
+    return client
+
+@router.put("/{id}",response_model=schemas.Client)
+async def update_client(id: int, client_params: schemas.ClientUpdate, db: Session=Depends(get_db)):
+    client = db.query(models.Client).filter_by(id=id).first()
+    client.firstname = client_params.firstname
+    client.lastname = client_params.lastname
+    client.document = client_params.document
+    client.phone = client_params.phone
+    client.email = client_params.email
+    client.status = client_params.status
+    db.commit()
+    db.refresh(client)
+    return client
+
+@router.delete("/{id}",response_model=schemas.Response)
+async def delete_client(id: int, db: Session=Depends(get_db)):
+    client = db.query(models.Client).filter_by(id=id).first()
+    db.delete(client)
+    db.commit()
+    response = schemas.Response(message="Eliminado exitosamente")
+    return response

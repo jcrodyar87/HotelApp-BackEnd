@@ -1,61 +1,51 @@
+from typing import List
+from fastapi.params import Depends
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from config.database import SessionLocal, engine
+import schemas, models
+from sqlalchemy.orm import Session
+
+models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter(prefix="/users",tags=["users"],responses={404:{"message":"No encontrado"}})
 
-class User(BaseModel):
-    id: int
-    username: str
-    status: int
-
-class UserDB(User):
-    password: str
-
-users_list = [User(id=1, username="admin@hotelapp.com", status=1),
-         User(id=2, username="recepcionist@ghotelapp.com", status=1)]
-
-@router.get("/")
-async def users():
-    return users_list
-
-@router.get("/{id}")
-async def user(id: int):
-    return search_user(id)
-
-def search_user(id: int):
-    user = filter(lambda user: user.id == id, users_list)
+def get_db():
     try:
-        return list(user)[0]
-    except:
-        raise HTTPException(status_code=404, detail="No se ha encontrado el usuario")
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
 
-@router.post("/", status_code=201)
-async def user(user: User):
-    if type(search_user(user.id)) == User:
-        raise HTTPException(status_code=404, detail="El usuario ya existe")
-    else:   
-        users_list.append(user)
-        return user
+@router.get("/",response_model=List[schemas.User])
+async def show_users(db: Session = Depends(get_db)):
+    users = db.query(models.User).all()
+    return users
 
-@router.put("/")
-async def user(user: User):
-    found = False
-    for index, saved_user in enumerate(users_list):
-        if saved_user.id == user.id:
-            users_list[index] = user
-            found = True
-    if not found:
-        raise HTTPException(status_code=404, detail="No se ha actualizado el usuario")
-    else:
-        return user
+@router.post("/",response_model=schemas.User)
+async def create_user(user_params: schemas.User, db: Session=Depends(get_db)):
+    user = models.User(
+        username = user_params.username,
+        status = user_params.status
+        )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
 
-@router.delete("/{id}")
-async def user(id: int):
-    found = False
-    for index, saved_user in enumerate(users_list):
-        if saved_user.id == id:
-            del users_list[index]
-            found = True
+@router.put("/{id}",response_model=schemas.User)
+async def update_user(id: int, user_params: schemas.UserUpdate, db: Session=Depends(get_db)):
+    user = db.query(models.User).filter_by(id=id).first()
+    user.username = user_params.username
+    user.status = user_params.status
+    db.commit()
+    db.refresh(user)
+    return user
 
-    if not found:
-        raise HTTPException(status_code=404, detail="No se ha eiminado el usuario")
+@router.delete("/{id}",response_model=schemas.Response)
+async def delete_user(id: int, db: Session=Depends(get_db)):
+    user = db.query(models.User).filter_by(id=id).first()
+    db.delete(user)
+    db.commit()
+    response = schemas.Response(message="Eliminado exitosamente")
+    return response

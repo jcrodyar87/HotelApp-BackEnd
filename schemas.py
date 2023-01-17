@@ -26,3 +26,41 @@ class RoomUpdate(BaseModel):
 
 class Response(BaseModel):
     message: str
+
+class Client(BaseModel):
+    id: Optional[int]
+    firstname: str
+    lastname: str
+    document: str
+    phone: str
+    email: str
+    status: int
+
+    class Config:
+        orm_mode=True
+
+class ClientUpdate(BaseModel):
+    firstname: str
+    lastname: str
+    document: str
+    phone: str
+    email: str
+    status: int
+
+    class Config:
+        orm_mode=True
+
+class User(BaseModel):
+    id: Optional[int]
+    username: str
+    status: int
+
+    class Config:
+        orm_mode=True
+
+class UserUpdate(BaseModel):
+    username: str
+    status: int
+
+    class Config:
+        orm_mode=True
