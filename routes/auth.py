@@ -116,7 +116,7 @@ async def recovery_password(user_params: schemas.UserAuth, db: Session=Depends(g
         user.token = generate_token(user.username)
         db.commit()
         db.refresh(user)
-        raise HTTPException(status_code=200, detail="Se ha enviado un email para que puedas recuperar tu contraseña")
+        raise HTTPException(status_code=200, detail="Se ha enviado un email para que puedas recuperar tu contraseña " + user.token)
     
 @router.post("/change-password/")
 async def change_password(user_params: schemas.UserNewPassword, db: Session=Depends(get_db)):
