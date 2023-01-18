@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -44,6 +45,7 @@ async def update_room(id: int, room_params: schemas.RoomUpdate, db: Session=Depe
     room.price = room_params.price
     room.capacity = room_params.capacity
     room.status = room_params.status
+    room.updated_date = datetime.utcnow()
     db.commit()
     db.refresh(room)
     return room

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -51,6 +52,7 @@ async def update_client(id: int, client_params: schemas.ClientUpdate, db: Sessio
     client.phone = client_params.phone
     client.email = client_params.email
     client.status = client_params.status
+    client.updated_date = datetime.utcnow()
     db.commit()
     db.refresh(client)
     return client

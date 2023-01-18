@@ -6,6 +6,7 @@ from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from datetime import datetime, timedelta
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -57,6 +58,7 @@ async def update_user(id: int, user_params: schemas.UserUpdate, db: Session=Depe
     user.password = user_params.password
     user.status = user_params.status
     user.role_id = user_params.role_id
+    user.updated_date = datetime.utcnow()
     db.commit()
     db.refresh(user)
     return user

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -55,6 +56,7 @@ async def update_reservation(id: int, reservation_params: schemas.ReservationUpd
     reservation.status = reservation_params.status,
     reservation.client_id = reservation_params.client_id,
     reservation.room_id = reservation_params.room_id
+    reservation.updated_date = datetime.utcnow()
     db.commit()
     db.refresh(reservation)
     return reservation

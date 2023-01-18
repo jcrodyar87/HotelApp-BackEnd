@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -45,6 +46,7 @@ async def update_role(id: int, role_params: schemas.RoleUpdate, db: Session=Depe
     role.name = role_params.name
     role.modules = role_params.modules
     role.status = role_params.status
+    role.updated_date = datetime.utcnow()
     db.commit()
     db.refresh(role)
     return role
