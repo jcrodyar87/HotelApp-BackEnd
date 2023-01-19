@@ -53,24 +53,6 @@ conf = ConnectionConfig(
     VALIDATE_CERTS = True
 )
 
-@router.post("/email/")
-async def simple_send(email: EmailSchema) -> JSONResponse:
-    html = """
-    <p style="padding: 20px;width:100%;text-align:center;font-size: 36px; font-weight: 700;">Restablece tu contraseña</p>
-    <p style="padding: 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;">Hola, Juan Carlos, hemos recibido una solicitud para cambiar tu contraseña, puedes hacerlo entrando aquí</p>
-    <a style="background: #4b22f4;
-    border: 0 solid #4b22f4; width: 200px; margin: 0;border: 0 solid #4b22f4;border-radius: 0;color: #fefefe!important;display: inline-block;font-size: 14px!important;font-weight: 700;letter-spacing: .4px;line-height: 24px;padding: 10px 20px 10px 20px; text-align: left;text-decoration: none;">Cambia tu contraseña</a>
-    """
-    message = MessageSchema(
-        subject="HotelApp - Has solicitado el recuperar tu contraseña",
-        recipients=email.dict().get("email"),
-        body=html,
-        subtype="html")
-
-    fm = FastMail(conf)
-    await fm.send_message(message)
-    return JSONResponse(status_code=200, content={"message": "Se ha enviado un email para que puedas recuperar tu contraseña"})
-
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -157,6 +139,21 @@ async def recovery_password(user_params: schemas.UserAuth, db: Session=Depends(g
         user.token = generate_token(user.username)
         db.commit()
         db.refresh(user)
+        html = """
+        <p><img style="position:relative;left:33.3%;width:200px" src="http://137.184.29.255/static/img/logo.jpg"></p>
+        <p style="padding: 20px;width:100%;text-align:center;font-size: 36px; font-weight: 700;">Restablece tu contraseña</p>
+        <p style="padding: 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;">Hola, Juan Carlos, hemos recibido una solicitud para cambiar tu contraseña, puedes hacerlo entrando aquí</p>
+        <a target="_blank" href="http://137.184.29.255/frontend/auth/recovery-password?h={{user.token}}" style="background: #2962FF;
+        border: 0 solid #2962FF; width: 200px; margin: 0;border-radius: 0;color: #fefefe!important;display: inline-block;font-size: 14px!important;font-weight: 700;letter-spacing: .4px;line-height: 24px;padding: 10px 20px 10px 20px; text-align: center;position:relative; left: 33.3%;text-decoration: none;">Cambia tu contraseña</a>
+        """
+        message = MessageSchema(
+            subject="HotelApp - Has solicitado el recuperar tu contraseña",
+            recipients=[user.username],
+            body=html,
+            subtype="html")
+
+        fm = FastMail(conf)
+        await fm.send_message(message)
         raise HTTPException(status_code=200, detail="Se ha enviado un email para que puedas recuperar tu contraseña " + user.token)
     
 @router.post("/change-password/")
