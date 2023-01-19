@@ -4,6 +4,7 @@ pip install mysql
 pip install mysql-connector-python
 pip install "python-jose[cryptography]"
 pip install "passlib[bcrypt]"
+pip install fastapi-mail
 pip install "uvicorn[standard]"
 
 uvicorn main:app --reload

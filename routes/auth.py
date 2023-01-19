@@ -3,11 +3,19 @@ from fastapi import Depends, APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
+from starlette.responses import JSONResponse
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+from pydantic import EmailStr, BaseModel
 import hashlib
 from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
+from typing import List
+from dotenv import load_dotenv
+import os
+from os.path import join, dirname
+
+load_dotenv('.env')
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -29,6 +37,39 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+class EmailSchema(BaseModel):
+    email: List[EmailStr]
+
+conf = ConnectionConfig(
+    MAIL_USERNAME =  os.getenv('MAIL_USERNAME'),
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD'),
+    MAIL_FROM = "contact@hotelapp.com",
+    MAIL_PORT=587,
+    MAIL_SERVER= os.getenv('MAIL_SERVER'),
+    MAIL_STARTTLS = False,
+    MAIL_SSL_TLS = False,
+    USE_CREDENTIALS = True,
+    VALIDATE_CERTS = True
+)
+
+@router.post("/email/")
+async def simple_send(email: EmailSchema) -> JSONResponse:
+    html = """
+    <p style="padding: 20px;width:100%;text-align:center;font-size: 36px; font-weight: 700;">Restablece tu contraseña</p>
+    <p style="padding: 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;">Hola, Juan Carlos, hemos recibido una solicitud para cambiar tu contraseña, puedes hacerlo entrando aquí</p>
+    <a style="background: #4b22f4;
+    border: 0 solid #4b22f4; width: 200px; margin: 0;border: 0 solid #4b22f4;border-radius: 0;color: #fefefe!important;display: inline-block;font-size: 14px!important;font-weight: 700;letter-spacing: .4px;line-height: 24px;padding: 10px 20px 10px 20px; text-align: left;text-decoration: none;">Cambia tu contraseña</a>
+    """
+    message = MessageSchema(
+        subject="HotelApp - Has solicitado el recuperar tu contraseña",
+        recipients=email.dict().get("email"),
+        body=html,
+        subtype="html")
+
+    fm = FastMail(conf)
+    await fm.send_message(message)
+    return JSONResponse(status_code=200, content={"message": "Se ha enviado un email para que puedas recuperar tu contraseña"})
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
