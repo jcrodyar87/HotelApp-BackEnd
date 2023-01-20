@@ -11,11 +11,11 @@ from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
 from typing import List
-from dotenv import load_dotenv
-import os
-from os.path import join, dirname
+#from dotenv import load_dotenv
+#import os
+#from os.path import join, dirname
 
-load_dotenv('.env')
+#load_dotenv('.env')
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -42,11 +42,11 @@ class EmailSchema(BaseModel):
     email: List[EmailStr]
 
 conf = ConnectionConfig(
-    MAIL_USERNAME =  os.getenv('MAIL_USERNAME'),
-    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD'),
+    MAIL_USERNAME =  "7fa57049544924",
+    MAIL_PASSWORD = "9bc9810468b2ff",
     MAIL_FROM = "contact@hotelapp.com",
     MAIL_PORT=587,
-    MAIL_SERVER= os.getenv('MAIL_SERVER'),
+    MAIL_SERVER= "smtp.mailtrap.io",
     MAIL_STARTTLS = False,
     MAIL_SSL_TLS = False,
     USE_CREDENTIALS = True,
