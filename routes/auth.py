@@ -153,10 +153,10 @@ async def recovery_password(user_params: schemas.UserAuth, db: Session=Depends(g
             subtype="html")
 
         fm = FastMail(conf)
-        #await fm.send_message(message)
+        await fm.send_message(message)
         return {"detail": "Se ha enviado un email para que puedas recuperar tu contraseña"}
     
-@router.post("/change-password/")
+@router.post("/change-password/",status_code=200,)
 async def change_password(user_params: schemas.UserNewPassword, db: Session=Depends(get_db)):
     user = db.query(models.User).filter_by(token=user_params.token).first()
     if user is None:
@@ -166,7 +166,7 @@ async def change_password(user_params: schemas.UserNewPassword, db: Session=Depe
         user.token = None
         db.commit()
         db.refresh(user)
-        raise HTTPException(status_code=200, detail="Se ha cambiado la contraseña exitosamente")
+        return {"detail": "Se ha cambiado la contraseña exitosamente"}
     
 @router.post("/",response_model=schemas.User, response_model_exclude={'password'})
 async def create_user(user_params: schemas.User, db: Session=Depends(get_db)):
