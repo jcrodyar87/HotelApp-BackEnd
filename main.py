@@ -5,11 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 app = FastAPI()
 
-origins = [
-    "http://137.184.29.255",
-    "http://localhost",
-    "hhttp://localhost:4200",
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,

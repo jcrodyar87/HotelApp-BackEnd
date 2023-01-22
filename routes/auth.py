@@ -130,7 +130,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
 async def read_current_user(user: schemas.UserWithRole = Depends(get_current_user)):
     return  user
 
-@router.post("/recovery-password/")
+@router.post("/recovery-password/",status_code=200)
 async def recovery_password(user_params: schemas.UserAuth, db: Session=Depends(get_db)):
     user = db.query(models.User).filter_by(username=user_params.username).first()
     if user is None:
@@ -143,7 +143,7 @@ async def recovery_password(user_params: schemas.UserAuth, db: Session=Depends(g
         <p><img style="position:relative;left:33.3%;width:200px" src="http://137.184.29.255/static/img/logo.jpg"></p>
         <p style="padding: 20px;width:100%;text-align:center;font-size: 36px; font-weight: 700;">Restablece tu contraseña</p>
         <p style="padding: 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;">Hola, Juan Carlos, hemos recibido una solicitud para cambiar tu contraseña, puedes hacerlo entrando aquí</p>
-        <a target="_blank" href="http://137.184.29.255/frontend/auth/recovery-password?h={{user.token}}" style="background: #2962FF;
+        <a target="_blank" href="http://137.184.29.255/frontend/auth/change-password?h={{user.token}}" style="background: #2962FF;
         border: 0 solid #2962FF; width: 200px; margin: 0;border-radius: 0;color: #fefefe!important;display: inline-block;font-size: 14px!important;font-weight: 700;letter-spacing: .4px;line-height: 24px;padding: 10px 20px 10px 20px; text-align: center;position:relative; left: 33.3%;text-decoration: none;">Cambia tu contraseña</a>
         """
         message = MessageSchema(
@@ -153,8 +153,8 @@ async def recovery_password(user_params: schemas.UserAuth, db: Session=Depends(g
             subtype="html")
 
         fm = FastMail(conf)
-        await fm.send_message(message)
-        raise HTTPException(status_code=200, detail="Se ha enviado un email para que puedas recuperar tu contraseña " + user.token)
+        #await fm.send_message(message)
+        return {"detail": "Se ha enviado un email para que puedas recuperar tu contraseña"}
     
 @router.post("/change-password/")
 async def change_password(user_params: schemas.UserNewPassword, db: Session=Depends(get_db)):

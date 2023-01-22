@@ -6,5 +6,5 @@ pip install "python-jose[cryptography]"
 pip install "passlib[bcrypt]"
 pip install fastapi-mail
 pip install "uvicorn[standard]"
-
+# Run server
 uvicorn main:app --reload
