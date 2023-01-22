@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from routes import roles, users, auth, clients, rooms, reservations
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-
+#from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 origins = ["*"]
@@ -12,7 +12,8 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+	allow_headers=["*"],
+    max_age=3600,
 )
 
 app.include_router(auth.router)
