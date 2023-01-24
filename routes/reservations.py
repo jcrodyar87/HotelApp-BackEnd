@@ -33,6 +33,8 @@ async def create_reservation(reservation_params: schemas.Reservation, db: Sessio
     reservation = models.Reservation(
         checkin = reservation_params.checkin, 
         checkout = reservation_params.checkout, 
+        adults = reservation_params.adults,
+        children = reservation_params.children,
         total = reservation_params.total, 
         done_payment = reservation_params.done_payment, 
         pending_payment = reservation_params.pending_payment,
@@ -50,6 +52,8 @@ async def update_reservation(id: int, reservation_params: schemas.ReservationUpd
     reservation = db.query(models.Reservation).filter_by(id=id).first()
     reservation.checkin = reservation_params.checkin, 
     reservation.checkout = reservation_params.checkout, 
+    reservation.adults = reservation_params.adults,
+    reservation.children = reservation_params.children,
     reservation.total = reservation_params.total, 
     reservation.done_payment = reservation_params.done_payment, 
     reservation.pending_payment = reservation_params.pending_payment,

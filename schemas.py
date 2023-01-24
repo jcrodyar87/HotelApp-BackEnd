@@ -88,6 +88,24 @@ class RoomUpdate(BaseModel):
 class Response(BaseModel):
     message: str
 
+class Country(BaseModel):
+    id: Optional[int]
+    name: str
+    alpha3: str
+    status: int
+
+    class Config:
+        orm_mode=True
+
+class CountryUpdate(BaseModel):
+    name: str
+    alpha3: str
+    status: int
+    updated_date: datetime = datetime.utcnow()
+
+    class Config:
+        orm_mode=True
+
 class Client(BaseModel):
     id: Optional[int]
     firstname: str
@@ -96,6 +114,7 @@ class Client(BaseModel):
     phone: str
     email: str
     status: int
+    country_id: Optional[int] | None = None
 
     class Config:
         orm_mode=True
@@ -108,6 +127,7 @@ class ClientUpdate(BaseModel):
     email: str
     status: int
     updated_date: datetime = datetime.utcnow()
+    country_id: Optional[int]
 
     class Config:
         orm_mode=True
@@ -116,6 +136,8 @@ class Reservation(BaseModel):
     id: Optional[int]
     checkin: date
     checkout: date
+    adults: int
+    children: int
     total: float
     done_payment: float
     pending_payment: float
@@ -129,6 +151,8 @@ class Reservation(BaseModel):
 class ReservationUpdate(BaseModel):
     checkin: date
     checkout: date
+    adults: int
+    children: int
     total: float
     done_payment: float
     pending_payment: float
