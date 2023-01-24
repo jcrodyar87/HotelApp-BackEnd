@@ -30,7 +30,14 @@ async def show_room(id: int, db: Session = Depends(get_db)):
 
 @router.post("/",response_model=schemas.Room)
 async def create_room(room_params: schemas.Room, db: Session=Depends(get_db)):
-    room = models.Room(name = room_params.name, description = room_params.description, type = room_params.type, price = room_params.price, capacity = room_params.capacity, status = room_params.status)
+    room = models.Room(
+        name = room_params.name, 
+        description = room_params.description, 
+        price = room_params.price, 
+        capacity = room_params.capacity,
+        room_type_id = room_params.room_type_id, 
+        status = room_params.status
+    )
     db.add(room)
     db.commit()
     db.refresh(room)
@@ -41,9 +48,9 @@ async def update_room(id: int, room_params: schemas.RoomUpdate, db: Session=Depe
     room = db.query(models.Room).filter_by(id=id).first()
     room.name = room_params.name
     room.description = room_params.description
-    room.type = room_params.type
     room.price = room_params.price
     room.capacity = room_params.capacity
+    room.room_type_id = room_params.room_type_id
     room.status = room_params.status
     room.updated_date = datetime.utcnow()
     db.commit()

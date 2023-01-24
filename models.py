@@ -30,6 +30,19 @@ class User(Base):
     updated_date = Column(DateTime, default=datetime.utcnow)
 
     role = relationship("Role", back_populates="user")
+
+    
+class RoomType(Base):
+    __tablename__ = "room_type"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200))
+    status = Column(Integer)
+    created_date = Column(DateTime, default=datetime.utcnow)
+    updated_date = Column(DateTime, default=datetime.utcnow)
+
+    room = relationship("Room", back_populates="room_type")
+
     
 class Room(Base):
     __tablename__ = "room"
@@ -37,13 +50,14 @@ class Room(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(200))
     description = Column(Text())
-    type = Column(String(150))
     price = Column(Numeric())
     capacity = Column(Integer)
     status = Column(Integer)
+    room_type_id = Column(Integer, ForeignKey("room_type.id"))
     created_date = Column(DateTime, default=datetime.utcnow)
     updated_date = Column(DateTime, default=datetime.utcnow)
 
+    room_type = relationship("RoomType", back_populates="room")
     reservation = relationship("Reservation", back_populates="room")
 
 

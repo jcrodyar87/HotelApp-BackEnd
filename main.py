@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import roles, users, auth, countries, clients, rooms, reservations
+from routes import roles, users, auth, countries, clients, room_types, rooms, reservations
 from fastapi.staticfiles import StaticFiles
 #from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.cors import CORSMiddleware
@@ -21,6 +21,7 @@ app.include_router(roles.router)
 app.include_router(users.router)
 app.include_router(countries.router)
 app.include_router(clients.router)
+app.include_router(room_types.router)
 app.include_router(rooms.router)
 app.include_router(reservations.router)
 

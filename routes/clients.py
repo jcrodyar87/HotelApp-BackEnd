@@ -36,7 +36,8 @@ async def create_client(client_params: schemas.Client, db: Session=Depends(get_d
         document = client_params.document, 
         phone = client_params.phone, 
         email = client_params.email, 
-        status = client_params.status
+        status = client_params.status,
+        country_id = client_params.country_id
         )
     db.add(client)
     db.commit()
@@ -52,6 +53,7 @@ async def update_client(id: int, client_params: schemas.ClientUpdate, db: Sessio
     client.phone = client_params.phone
     client.email = client_params.email
     client.status = client_params.status
+    client.country_id = client_params.country_id
     client.updated_date = datetime.utcnow()
     db.commit()
     db.refresh(client)

@@ -61,13 +61,29 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str | None = None
 
+class RoomType(BaseModel):
+    id: Optional[int]
+    name: str
+    status: int
+
+    class Config:
+        orm_mode=True
+
+class RoomTypeUpdate(BaseModel):
+    name: str
+    status: int
+    updated_date: datetime = datetime.utcnow()
+
+    class Config:
+        orm_mode=True
+
 class Room(BaseModel):
     id: Optional[int]
     name: str
     description: str
-    type: str
     price: float
     capacity: int
+    room_type_id: Optional[int] | None = None
     status: int
 
     class Config:
@@ -76,9 +92,9 @@ class Room(BaseModel):
 class RoomUpdate(BaseModel):
     name: str
     description: str
-    type: str
     price: float
     capacity: int
+    room_type_id: Optional[int] | None = None
     status: int
     updated_date: datetime = datetime.utcnow()
 
