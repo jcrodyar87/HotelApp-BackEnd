@@ -19,8 +19,12 @@ def get_db():
         db.close()
 
 @router.get("/",response_model=List[schemas.ReservationWithClientAndRoom])
-async def show_reservations(db: Session = Depends(get_db)):
-    reservations = db.query(models.Reservation).all()
+async def show_reservations(start_date: str = '', end_date: str = '', db: Session = Depends(get_db)):
+    if start_date == '' and end_date == '':
+        reservations = db.query(models.Reservation).order_by(models.Reservation.checkin.asc()).all()
+    else:
+        reservations = db.query(models.Reservation).filter(models.Reservation.checkin <= end_date).\
+        filter(models.Reservation.checkin >= start_date).order_by(models.Reservation.checkin.asc()).all()
     return reservations
 
 @router.get("/{id}",response_model=schemas.ReservationWithClientAndRoom)

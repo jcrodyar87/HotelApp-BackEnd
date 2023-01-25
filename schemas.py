@@ -101,6 +101,9 @@ class RoomUpdate(BaseModel):
     class Config:
         orm_mode=True
 
+class RoomWithRoomType(Room):
+    room_type: Optional[RoomType] = None
+
 class Response(BaseModel):
     message: str
 
@@ -147,6 +150,9 @@ class ClientUpdate(BaseModel):
 
     class Config:
         orm_mode=True
+
+class ClientWithCountry(Client):
+    country: Optional[Country] = None
 
 class Reservation(BaseModel):
     id: Optional[int]

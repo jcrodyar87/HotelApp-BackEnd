@@ -18,7 +18,7 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/",response_model=List[schemas.Client])
+@router.get("/",response_model=List[schemas.ClientWithCountry])
 async def show_clients(db: Session = Depends(get_db)):
     clients = db.query(models.Client).all()
     return clients

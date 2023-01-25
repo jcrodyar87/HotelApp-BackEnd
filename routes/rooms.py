@@ -18,7 +18,7 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/",response_model=List[schemas.Room])
+@router.get("/",response_model=List[schemas.RoomWithRoomType])
 async def show_rooms(db: Session = Depends(get_db)):
     rooms = db.query(models.Room).all()
     return rooms
