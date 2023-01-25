@@ -64,27 +64,3 @@ async def delete_room(id: int, db: Session=Depends(get_db)):
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response
-
-
-#@router.get("/")
-#async def rooms():
-#   return rooms_list
-
-#@router.get("/{id}")
-#async def room(id: int):
-#    return search_room(id)
-
-#def search_room(id: int):
-#    room = filter(lambda room: room.id == id, rooms_list)
-#    try:
-#        return list(room)[0]
-#    except:
-#        raise HTTPException(status_code=404, detail="No se ha encontrado la habitación")
-
-#@router.post("/", status_code=201)
-#async def room(room: Room):
-#    if type(search_room(room.id)) == Room:
-#        raise HTTPException(status_code=404, detail="La habitación ya existe")
-#    else:   
-#        rooms_list.append(room)
-#        return room
