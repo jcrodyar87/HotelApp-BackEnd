@@ -8,3 +8,4 @@ pip install fastapi-mail
 pip install "uvicorn[standard]"
 # Run server
 uvicorn main:app --reload
+py -m  uvicorn main:app --reload

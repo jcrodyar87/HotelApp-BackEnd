@@ -29,7 +29,7 @@ CREATE TABLE `client` (
   `document` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `phone` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `reservations_quantity` int DEFAULT NULL,
+  `reservations_quantity` int DEFAULT '0',
   `last_reservation` datetime DEFAULT NULL,
   `status` int DEFAULT NULL,
   `country_id` int DEFAULT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE `client` (
   KEY `country_id` (`country_id`),
   KEY `ix_client_id` (`id`),
   CONSTRAINT `client_ibfk_1` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +48,7 @@ CREATE TABLE `client` (
 
 LOCK TABLES `client` WRITE;
 /*!40000 ALTER TABLE `client` DISABLE KEYS */;
-INSERT INTO `client` VALUES (1,'Juan Carlos','Rodriguez','44854480','966744497','jcry87@gmail.com',NULL,'2023-01-24 17:09:20',1,140,'2023-01-24 17:09:20','2023-01-24 17:09:20'),(2,'María','Castro','44808956','966733612','maria@gmail.com',NULL,'2023-01-24 17:12:29',1,37,'2023-01-24 17:12:29','2023-01-24 17:12:29'),(3,'Laura','García','09808071','966713689','laura@gmail.com',NULL,'2023-01-24 17:13:26',1,40,'2023-01-24 17:13:26','2023-01-24 17:13:26');
+INSERT INTO `client` VALUES (1,'Juan Carlos','Rodriguez','44854480','966744497','jcry87@gmail.com',NULL,'2023-01-24 17:09:20',1,140,'2023-01-24 17:09:20','2023-01-24 17:09:20'),(2,'María','Castro','44808956','966733612','maria@gmail.com',NULL,'2023-01-24 17:12:29',1,37,'2023-01-24 17:12:29','2023-01-24 17:12:29'),(3,'Laura','García','09808071','966713689','laura@gmail.com',NULL,'2023-01-24 17:13:26',1,40,'2023-01-24 17:13:26','2023-01-24 17:13:26'),(4,'Pedro','Martinez','44567890','909789678','pedro@gmail.com',NULL,'2023-01-28 02:22:23',1,40,'2023-01-28 02:22:23','2023-01-28 02:22:23'),(5,'Pedro','Martinez','44567890','909789678','pedro@gmail.com',NULL,'2023-01-28 02:23:07',1,40,'2023-01-28 02:23:07','2023-01-28 02:23:07'),(6,'Pedro','Martinez','44567890','909789678','pedro@gmail.com',NULL,'2023-01-28 02:24:42',1,40,'2023-01-28 02:24:42','2023-01-28 02:24:42');
 /*!40000 ALTER TABLE `client` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -260,4 +260,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-24 12:34:08
+-- Dump completed on 2023-01-27 21:34:43

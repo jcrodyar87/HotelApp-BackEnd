@@ -132,11 +132,16 @@ class Client(BaseModel):
     document: str
     phone: str
     email: str
+    reservations_quantity: Optional[int]
+    last_reservation:  Optional[datetime] = datetime.utcnow()
     status: int
     country_id: Optional[int] | None = None
 
     class Config:
         orm_mode=True
+
+class ClientFull(Client):
+    created_date: Optional[datetime]
 
 class ClientUpdate(BaseModel):
     firstname: str
@@ -144,6 +149,8 @@ class ClientUpdate(BaseModel):
     document: str
     phone: str
     email: str
+    reservations_quantity: Optional[int]
+    last_reservation:  Optional[datetime]
     status: int
     updated_date: datetime = datetime.utcnow()
     country_id: Optional[int]
@@ -152,6 +159,7 @@ class ClientUpdate(BaseModel):
         orm_mode=True
 
 class ClientWithCountry(Client):
+    created_date: Optional[datetime]
     country: Optional[Country] = None
 
 class Reservation(BaseModel):

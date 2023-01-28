@@ -23,12 +23,12 @@ async def show_clients(db: Session = Depends(get_db)):
     clients = db.query(models.Client).all()
     return clients
 
-@router.get("/{id}",response_model=schemas.Client)
+@router.get("/{id}",response_model=schemas.ClientFull)
 async def show_client(id: int, db: Session = Depends(get_db)):
     client = db.query(models.Client).filter_by(id=id).first()
     return client
 
-@router.post("/",response_model=schemas.Client)
+@router.post("/",response_model=schemas.ClientFull)
 async def create_client(client_params: schemas.Client, db: Session=Depends(get_db)):
     client = models.Client(
         firstname = client_params.firstname,
@@ -37,6 +37,7 @@ async def create_client(client_params: schemas.Client, db: Session=Depends(get_d
         phone = client_params.phone, 
         email = client_params.email, 
         status = client_params.status,
+        reservations_quantity = 0,
         country_id = client_params.country_id
         )
     db.add(client)
@@ -44,7 +45,7 @@ async def create_client(client_params: schemas.Client, db: Session=Depends(get_d
     db.refresh(client)
     return client
 
-@router.put("/{id}",response_model=schemas.Client)
+@router.put("/{id}",response_model=schemas.ClientFull)
 async def update_client(id: int, client_params: schemas.ClientUpdate, db: Session=Depends(get_db)):
     client = db.query(models.Client).filter_by(id=id).first()
     client.firstname = client_params.firstname

@@ -82,7 +82,7 @@ class Client(Base):
     document = Column(String(100))
     phone = Column(String(100))
     email = Column(String(150))
-    reservations_quantity = Column(Integer)
+    reservations_quantity = Column(Integer, default=0)
     last_reservation = Column(DateTime, default=datetime.utcnow)
     status = Column(Integer)
     country_id = Column(Integer, ForeignKey("country.id"))
