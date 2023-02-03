@@ -24,11 +24,11 @@ DROP TABLE IF EXISTS `client`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `client` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `firstname` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `lastname` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `document` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `phone` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firstname` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lastname` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `document` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `reservations_quantity` int DEFAULT '0',
   `last_reservation` datetime DEFAULT NULL,
   `status` int DEFAULT NULL,
@@ -61,8 +61,8 @@ DROP TABLE IF EXISTS `country`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `country` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `alpha3` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `alpha3` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` int DEFAULT NULL,
   `created_date` datetime DEFAULT NULL,
   `updated_date` datetime DEFAULT NULL,
@@ -108,7 +108,7 @@ CREATE TABLE `reservation` (
   KEY `ix_reservation_id` (`id`),
   CONSTRAINT `reservation_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`),
   CONSTRAINT `reservation_ibfk_2` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -117,7 +117,7 @@ CREATE TABLE `reservation` (
 
 LOCK TABLES `reservation` WRITE;
 /*!40000 ALTER TABLE `reservation` DISABLE KEYS */;
-INSERT INTO `reservation` VALUES (1,'2023-01-28','2023-01-28',2,0,150,150,0,1,1,1,'2023-01-24 17:33:04','2023-01-24 17:33:04'),(2,'2023-01-27','2023-01-27',2,0,150,150,0,1,2,3,'2023-01-24 17:33:41','2023-01-24 17:33:41');
+INSERT INTO `reservation` VALUES (1,'2023-01-28','2023-01-28',2,0,150,150,0,1,1,1,'2023-01-24 17:33:04','2023-01-24 17:33:04'),(2,'2023-01-27','2023-01-27',2,0,150,150,0,1,2,3,'2023-01-24 17:33:41','2023-01-24 17:33:41'),(3,'2023-02-02','2023-02-02',2,0,0,300,300,1,3,2,'2023-02-03 16:52:08','2023-02-03 16:52:08'),(4,'2023-02-01','2023-02-01',1,0,0,150,150,1,3,1,'2023-02-03 17:00:29','2023-02-03 17:00:29'),(5,'2023-02-03','2023-02-03',1,0,0,150,150,1,4,1,'2023-02-03 17:02:37','2023-02-03 17:02:37'),(6,'2023-02-04','2023-02-04',1,0,0,150,150,1,5,4,'2023-02-03 17:03:57','2023-02-03 17:03:57');
 /*!40000 ALTER TABLE `reservation` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -130,8 +130,8 @@ DROP TABLE IF EXISTS `role`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `role` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `modules` text COLLATE utf8mb4_unicode_ci,
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `modules` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `status` int DEFAULT NULL,
   `created_date` datetime DEFAULT NULL,
   `updated_date` datetime DEFAULT NULL,
@@ -159,8 +159,8 @@ DROP TABLE IF EXISTS `room`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `room` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `price` decimal(10,0) DEFAULT NULL,
   `capacity` int DEFAULT NULL,
   `status` int DEFAULT NULL,
@@ -193,7 +193,7 @@ DROP TABLE IF EXISTS `room_type`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `room_type` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` int DEFAULT NULL,
   `created_date` datetime DEFAULT NULL,
   `updated_date` datetime DEFAULT NULL,
@@ -221,12 +221,12 @@ DROP TABLE IF EXISTS `user`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `firstname` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `lastname` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `password` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `username` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `firstname` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lastname` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` int DEFAULT NULL,
-  `token` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `role_id` int DEFAULT NULL,
   `created_date` datetime DEFAULT NULL,
   `updated_date` datetime DEFAULT NULL,
@@ -260,4 +260,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-27 21:38:11
+-- Dump completed on 2023-02-03 12:05:38

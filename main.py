@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from routes import roles, users, auth, countries, clients, room_types, rooms, reservations
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 #from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.cors import CORSMiddleware
@@ -24,6 +25,10 @@ app.include_router(clients.router)
 app.include_router(room_types.router)
 app.include_router(rooms.router)
 app.include_router(reservations.router)
+
+@app.get('/')
+def redirect_doc():
+    return RedirectResponse(url=f"/docs/", status_code=303)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
