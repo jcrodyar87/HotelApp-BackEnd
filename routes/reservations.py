@@ -54,15 +54,15 @@ async def create_reservation(reservation_params: schemas.Reservation, db: Sessio
 @router.put("/{id}",response_model=schemas.Reservation)
 async def update_reservation(id: int, reservation_params: schemas.ReservationUpdate, db: Session=Depends(get_db)):
     reservation = db.query(models.Reservation).filter_by(id=id).first()
-    reservation.checkin = reservation_params.checkin, 
-    reservation.checkout = reservation_params.checkout, 
-    reservation.adults = reservation_params.adults,
-    reservation.children = reservation_params.children,
-    reservation.total = reservation_params.total, 
-    reservation.done_payment = reservation_params.done_payment, 
-    reservation.pending_payment = reservation_params.pending_payment,
-    reservation.status = reservation_params.status,
-    reservation.client_id = reservation_params.client_id,
+    reservation.checkin = reservation_params.checkin
+    reservation.checkout = reservation_params.checkout  
+    reservation.adults = reservation_params.adults
+    reservation.children = reservation_params.children
+    reservation.total = reservation_params.total
+    reservation.done_payment = reservation_params.done_payment
+    reservation.pending_payment = reservation_params.pending_payment
+    reservation.status = reservation_params.status
+    reservation.client_id = reservation_params.client_id
     reservation.room_id = reservation_params.room_id
     reservation.updated_date = datetime.utcnow()
     db.commit()
