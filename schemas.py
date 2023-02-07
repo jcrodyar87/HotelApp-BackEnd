@@ -197,3 +197,6 @@ class ReservationUpdate(BaseModel):
 class ReservationWithClientAndRoom(Reservation):
     client: Optional[Client] = None
     room: Optional[Room] = None
+
+class ReservationEmail(BaseModel):
+    id: Optional[int]

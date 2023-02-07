@@ -6,6 +6,7 @@ from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -17,6 +18,18 @@ def get_db():
         yield db
     finally:
         db.close()
+
+conf = ConnectionConfig(
+    MAIL_USERNAME =  "7fa57049544924",
+    MAIL_PASSWORD = "9bc9810468b2ff",
+    MAIL_FROM = "contact@hotelapp.com",
+    MAIL_PORT=587,
+    MAIL_SERVER= "smtp.mailtrap.io",
+    MAIL_STARTTLS = False,
+    MAIL_SSL_TLS = False,
+    USE_CREDENTIALS = True,
+    VALIDATE_CERTS = True
+)
 
 @router.get("/",response_model=List[schemas.ReservationWithClientAndRoom])
 async def show_reservations(start_date: str = '', end_date: str = '', db: Session = Depends(get_db)):
@@ -76,3 +89,38 @@ async def delete_reservation(id: int, db: Session=Depends(get_db)):
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response
+
+@router.post("/send-email/",status_code=200)
+async def send_reservation_email(reservation_params: schemas.ReservationEmail, db: Session=Depends(get_db)):
+    reservation = db.query(models.Reservation).filter_by(id=reservation_params.id).first()
+    if reservation is None:
+        raise HTTPException(status_code=400, detail="No se ha podido enviar el email con el detalle de la reserva")
+    html = f"""
+    <p><img style="position:relative;left:33.3%;width:200px" src="http://137.184.29.255/static/img/logo.jpg"></p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 500;line-height: 32px;text-align: center;">HOTEL LAS PALMERAS DE HUANCHACO<p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 22px;text-align: center;">Av. Larco 1624 - Sector Los Tumbos – Huanchaco</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 22px;text-align: center;">Teléfono: 924284185 - (044) 46 11 99</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;">Hola, { reservation.client.firstname} has realizado una reserva</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Nombre del cliente: </b>{reservation.client.firstname}  {reservation.client.lastname}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Documento:</b> {reservation.client.document}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Teléfono:</b> {reservation.client.phone}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Su reserva:</b> {reservation.room.name} - {reservation.room.room_type.name}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;">{reservation.room.description}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Clientes:</b> {reservation.adults} Adulto(s), {reservation.children} Niño(s)</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Llegada:</b> {reservation.checkin.strftime('%d/%m/%Y')}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Salida:</b> {reservation.checkout.strftime('%d/%m/%Y')}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Hora de llegada:</b> { reservation.checkin.strftime('%d/%m/%Y')}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Costo total:</b> S/{ reservation.total:,.2f}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Total pagado:</b> S/{reservation.done_payment:,.2f}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: left;"><b>Queda por pagar:</b> S/{reservation.pending_payment:,.2f}</p>
+    <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 24px;text-align: center;">Gracias por su reserva, lo esperamos pronto</p>
+    """
+    message = MessageSchema(
+        subject="HotelApp - Has realizado una reserva",
+        recipients=[reservation.client.email],
+        body=html,
+        subtype="html")
+
+    fm = FastMail(conf)
+    await fm.send_message(message)
+    return {"detail": "Se ha enviado un email con el detalle de la reserva"}
