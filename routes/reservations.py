@@ -45,6 +45,14 @@ async def show_reservation(id: int, db: Session = Depends(get_db)):
     reservation = db.query(models.Reservation).filter_by(id=id).first()
     return reservation
 
+@router.get("/{id}/accounting-document/")
+async def show_reservation_accounting_document(id: int, db: Session = Depends(get_db)):
+    accounting_document = db.query(models.AccountingDocument).filter_by(reservation_id=id).first()
+    if accounting_document is None:
+        return {"detail": "La reserva no tiene un pago registrado"}
+    else: 
+        return accounting_document
+
 @router.post("/",response_model=schemas.Reservation)
 async def create_reservation(reservation_params: schemas.Reservation, db: Session=Depends(get_db)):
     reservation = models.Reservation(

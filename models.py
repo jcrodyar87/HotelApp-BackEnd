@@ -111,3 +111,25 @@ class Reservation(Base):
 
     client = relationship("Client", back_populates="reservation")
     room = relationship("Room", back_populates="reservation")
+    #accounting_document = relationship("AccountingDocument", back_populates="reservation")
+
+class AccountingDocument(Base):
+    __tablename__ = "accounting_document"
+
+    id = Column(Integer, primary_key=True, index=True)
+    number = Column(String(200))
+    client_number = Column(String(100))
+    client_name = Column(String(300))
+    client_address = Column(String(300))
+    issue_date = Column(Date)
+    type = Column(Integer())
+    currency_type = Column(Integer())
+    total_sale =  Column(Numeric())
+    tax =  Column(Numeric())
+    total =  Column(Numeric())
+    status = Column(Integer, default=1)
+    reservation_id = Column(Integer, ForeignKey("reservation.id"))
+    created_date = Column(DateTime, default=datetime.utcnow)
+    updated_date = Column(DateTime, default=datetime.utcnow)
+
+    #reservation = relationship("Reservation", back_populates="accounting_document")

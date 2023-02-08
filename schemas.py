@@ -194,9 +194,32 @@ class ReservationUpdate(BaseModel):
     class Config:
         orm_mode=True
 
+class ReservationEmail(BaseModel):
+    id: Optional[int]
+
+class AccountingDocument(BaseModel):
+    id: Optional[int]
+    number: str
+    client_number: str
+    client_name: str
+    client_address: str
+    issue_date: date
+    type: int
+    currency_type: int
+    total_sale: float
+    tax: float
+    total: float
+    status: int | None = None
+    reservation_id: Optional[int] | None = None
+
+    class Config:
+        orm_mode=True
+
 class ReservationWithClientAndRoom(Reservation):
     client: Optional[Client] = None
     room: Optional[Room] = None
 
-class ReservationEmail(BaseModel):
-    id: Optional[int]
+class ReservationWithClientAndRoomAndAccountingDocument(Reservation):
+    client: Optional[Client] = None
+    room: Optional[Room] = None
+    accounting_document: Optional[AccountingDocument] = None

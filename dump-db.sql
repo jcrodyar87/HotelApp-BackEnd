@@ -16,6 +16,46 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `accounting_document`
+--
+
+DROP TABLE IF EXISTS `accounting_document`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `accounting_document` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `number` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `client_number` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `client_name` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `client_address` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `issue_date` date DEFAULT NULL,
+  `type` int DEFAULT NULL,
+  `currency_type` int DEFAULT NULL,
+  `total_sale` decimal(10,0) DEFAULT NULL,
+  `tax` decimal(10,0) DEFAULT NULL,
+  `total` decimal(10,0) DEFAULT NULL,
+  `status` int DEFAULT NULL,
+  `reservation_id` int DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL,
+  `updated_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `reservation_id` (`reservation_id`),
+  KEY `ix_accounting_document_id` (`id`),
+  CONSTRAINT `accounting_document_ibfk_1` FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `accounting_document`
+--
+
+LOCK TABLES `accounting_document` WRITE;
+/*!40000 ALTER TABLE `accounting_document` DISABLE KEYS */;
+INSERT INTO `accounting_document` VALUES (1,'F001-1','20448544801','ORELLANA VIAJES S.A.C.','Calle Nisperos 344','2023-02-19',1,1,123,27,150,1,1,'2023-02-08 01:41:29','2023-02-08 01:41:29');
+/*!40000 ALTER TABLE `accounting_document` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `client`
 --
 
@@ -48,7 +88,7 @@ CREATE TABLE `client` (
 
 LOCK TABLES `client` WRITE;
 /*!40000 ALTER TABLE `client` DISABLE KEYS */;
-INSERT INTO `client` VALUES (1,'Juan Carlos','Rodriguez','44854480','966744497','jcry87@gmail.com',0,'2023-01-24 17:09:20',1,140,'2023-01-24 17:09:20','2023-01-24 17:09:20'),(2,'María','Castro','44808956','966733612','maria@gmail.com',0,'2023-01-24 17:12:29',1,37,'2023-01-24 17:12:29','2023-01-24 17:12:29'),(3,'Laura','García','09808071','966713689','laura@gmail.com',0,'2023-01-24 17:13:26',1,40,'2023-01-24 17:13:26','2023-01-24 17:13:26'),(4,'Raul','Martinez','08127890','909789611','raul@gmail.com',0,'2023-01-28 02:22:23',1,40,'2023-01-28 02:22:23','2023-01-28 02:22:23'),(5,'Carlos','Ugarte','44564890','909089678','carlos@gmail.com',0,'2023-01-28 02:23:07',1,40,'2023-01-28 02:23:07','2023-01-28 02:23:07'),(6,'Pedro','Orellana','44117890','909789609','pedroorell@gmail.com',0,'2023-01-28 02:24:42',1,40,'2023-01-28 02:24:42','2023-01-28 02:24:42');
+INSERT INTO `client` VALUES (1,'Juan Carlos','Rodriguez Yarmas','44854480','966744497','jcry87@gmail.com',0,'2023-01-24 17:09:20',0,140,'2023-01-24 17:09:20','2023-02-04 16:00:55'),(2,'María Veronica','Castro','44808956','966733612','maria@gmail.com',0,'2023-01-24 17:12:29',1,37,'2023-01-24 17:12:29','2023-02-04 16:01:15'),(3,'Laura','García','09808071','966713689','laura@gmail.com',0,'2023-01-24 17:13:26',1,40,'2023-01-24 17:13:26','2023-01-24 17:13:26'),(4,'Raul','Martinez','08127890','909789611','raul@gmail.com',0,'2023-01-28 02:22:23',1,40,'2023-01-28 02:22:23','2023-01-28 02:22:23'),(5,'Carlos','Ugarte','44564890','909089678','carlos@gmail.com',0,'2023-01-28 02:23:07',1,40,'2023-01-28 02:23:07','2023-01-28 02:23:07'),(6,'Pedro','Orellana','44117890','909789609','pedroorell@gmail.com',0,'2023-01-28 02:24:42',1,40,'2023-01-28 02:24:42','2023-01-28 02:24:42');
 /*!40000 ALTER TABLE `client` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -108,7 +148,7 @@ CREATE TABLE `reservation` (
   KEY `ix_reservation_id` (`id`),
   CONSTRAINT `reservation_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`),
   CONSTRAINT `reservation_ibfk_2` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -117,7 +157,7 @@ CREATE TABLE `reservation` (
 
 LOCK TABLES `reservation` WRITE;
 /*!40000 ALTER TABLE `reservation` DISABLE KEYS */;
-INSERT INTO `reservation` VALUES (1,'2023-01-28','2023-01-28',2,0,150,150,0,1,1,1,'2023-01-24 17:33:04','2023-01-24 17:33:04'),(2,'2023-01-27','2023-01-27',2,0,150,150,0,1,2,3,'2023-01-24 17:33:41','2023-01-24 17:33:41'),(3,'2023-02-02','2023-02-02',2,0,0,300,300,1,3,2,'2023-02-03 16:52:08','2023-02-03 16:52:08'),(4,'2023-02-01','2023-02-01',1,0,0,150,150,1,3,1,'2023-02-03 17:00:29','2023-02-03 17:00:29'),(5,'2023-02-03','2023-02-03',1,0,0,150,150,1,4,1,'2023-02-03 17:02:37','2023-02-03 17:02:37'),(6,'2023-02-04','2023-02-04',1,0,0,150,150,1,5,4,'2023-02-03 17:03:57','2023-02-03 17:03:57');
+INSERT INTO `reservation` VALUES (1,'2023-01-28','2023-01-28',2,0,150,150,0,1,1,1,'2023-01-24 17:33:04','2023-01-24 17:33:04'),(2,'2023-01-27','2023-01-27',2,0,150,150,0,1,2,3,'2023-01-24 17:33:41','2023-01-24 17:33:41'),(3,'2023-02-02','2023-02-02',2,0,0,300,300,1,3,2,'2023-02-03 16:52:08','2023-02-03 16:52:08'),(4,'2023-02-01','2023-02-01',1,0,0,150,150,1,3,1,'2023-02-03 17:00:29','2023-02-03 17:00:29'),(5,'2023-02-03','2023-02-03',1,0,0,150,150,1,4,1,'2023-02-03 17:02:37','2023-02-03 17:02:37'),(6,'2023-02-05','2023-02-04',1,0,150,0,150,1,1,4,'2023-02-03 17:03:57','2023-02-04 14:29:32'),(7,'2023-02-04','2023-02-04',2,1,0,150,150,1,6,2,'2023-02-04 16:03:53','2023-02-04 16:03:53');
 /*!40000 ALTER TABLE `reservation` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -260,4 +300,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-03 12:05:38
+-- Dump completed on 2023-02-07 21:57:18
