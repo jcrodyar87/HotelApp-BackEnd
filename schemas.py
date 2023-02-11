@@ -102,6 +102,7 @@ class RoomUpdate(BaseModel):
         orm_mode=True
 
 class RoomWithRoomType(Room):
+    created_date: Optional[datetime]
     room_type: Optional[RoomType] = None
 
 class Response(BaseModel):
