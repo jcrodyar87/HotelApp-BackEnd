@@ -53,42 +53,63 @@ async def show_reservation_accounting_document(id: int, db: Session = Depends(ge
     else: 
         return accounting_document
 
-@router.post("/",response_model=schemas.Reservation)
+@router.post("/")
 async def create_reservation(reservation_params: schemas.Reservation, db: Session=Depends(get_db)):
-    reservation = models.Reservation(
-        checkin = reservation_params.checkin, 
-        checkout = reservation_params.checkout, 
-        adults = reservation_params.adults,
-        children = reservation_params.children,
-        total = reservation_params.total, 
-        done_payment = reservation_params.done_payment, 
-        pending_payment = reservation_params.pending_payment,
-        status = reservation_params.status,
-        client_id = reservation_params.client_id,
-        room_id = reservation_params.room_id
-    )
-    db.add(reservation)
-    db.commit()
-    db.refresh(reservation)
-    return reservation
+    prev_reservation = db.query(models.Reservation).filter(models.Reservation.checkin ==reservation_params.checkin ).\
+        filter(models.Reservation.room_id == reservation_params.room_id).first()
+    if prev_reservation is not None:
+        raise HTTPException(status_code=400, detail="Ya existe una reserva para ese horario y habitación")
+    else:
+        prev_closed_schedule = db.query(models.ClosedSchedule).filter(models.ClosedSchedule.start_date == reservation_params.checkin ).\
+        filter(models.ClosedSchedule.room_id == reservation_params.room_id).first()
+        if prev_closed_schedule is not None:
+            raise HTTPException(status_code=400, detail="El horario elegido no recibe reservas porque está bloqueado - " + prev_closed_schedule.description)
+        else:
+            reservation = models.Reservation(
+                checkin = reservation_params.checkin, 
+                checkout = reservation_params.checkout, 
+                adults = reservation_params.adults,
+                children = reservation_params.children,
+                total = reservation_params.total, 
+                done_payment = reservation_params.done_payment, 
+                pending_payment = reservation_params.pending_payment,
+                status = reservation_params.status,
+                client_id = reservation_params.client_id,
+                room_id = reservation_params.room_id
+            )
+            db.add(reservation)
+            db.commit()
+            db.refresh(reservation)
+            return reservation
 
-@router.put("/{id}",response_model=schemas.Reservation)
+@router.put("/{id}")
 async def update_reservation(id: int, reservation_params: schemas.ReservationUpdate, db: Session=Depends(get_db)):
-    reservation = db.query(models.Reservation).filter_by(id=id).first()
-    reservation.checkin = reservation_params.checkin
-    reservation.checkout = reservation_params.checkout  
-    reservation.adults = reservation_params.adults
-    reservation.children = reservation_params.children
-    reservation.total = reservation_params.total
-    reservation.done_payment = reservation_params.done_payment
-    reservation.pending_payment = reservation_params.pending_payment
-    reservation.status = reservation_params.status
-    reservation.client_id = reservation_params.client_id
-    reservation.room_id = reservation_params.room_id
-    reservation.updated_date = datetime.utcnow()
-    db.commit()
-    db.refresh(reservation)
-    return reservation
+    prev_reservation = db.query(models.Reservation).filter(models.Reservation.checkin ==reservation_params.checkin ).\
+        filter(models.Reservation.room_id == reservation_params.room_id).\
+        filter(models.Reservation.id != id).first()
+    if prev_reservation is not None:
+        raise HTTPException(status_code=400, detail="Ya existe una reserva para ese horario y habitación")
+    else:
+        prev_closed_schedule = db.query(models.ClosedSchedule).filter(models.ClosedSchedule.start_date == reservation_params.checkin ).\
+        filter(models.ClosedSchedule.room_id == reservation_params.room_id).first()
+        if prev_closed_schedule is not None:
+            raise HTTPException(status_code=400, detail="El horario elegido no recibe reservas porque está bloqueado - " + prev_closed_schedule.description)
+        else:
+            reservation = db.query(models.Reservation).filter_by(id=id).first()
+            reservation.checkin = reservation_params.checkin
+            reservation.checkout = reservation_params.checkout  
+            reservation.adults = reservation_params.adults
+            reservation.children = reservation_params.children
+            reservation.total = reservation_params.total
+            reservation.done_payment = reservation_params.done_payment
+            reservation.pending_payment = reservation_params.pending_payment
+            reservation.status = reservation_params.status
+            reservation.client_id = reservation_params.client_id
+            reservation.room_id = reservation_params.room_id
+            reservation.updated_date = datetime.utcnow()
+            db.commit()
+            db.refresh(reservation)
+            return reservation
 
 @router.delete("/{id}",response_model=schemas.Response)
 async def delete_reservation(id: int, db: Session=Depends(get_db)):
