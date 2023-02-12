@@ -54,7 +54,7 @@ async def create_accounting_document(accounting_document_params: schemas.Account
     return accounting_document
 
 @router.put("/{id}",response_model=schemas.AccountingDocument)
-async def update_accounting_document(id: int, accounting_document_params: schemas.CountryUpdate, db: Session=Depends(get_db)):
+async def update_accounting_document(id: int, accounting_document_params: schemas.AccountingDocumentUpdate, db: Session=Depends(get_db)):
     accounting_document = db.query(models.AccountingDocument).filter_by(id=id).first()
 
     accounting_document.number = accounting_document_params.number
@@ -75,7 +75,7 @@ async def update_accounting_document(id: int, accounting_document_params: schema
     return accounting_document
 
 @router.delete("/{id}",response_model=schemas.Response)
-async def delete_country(id: int, db: Session=Depends(get_db)):
+async def delete_accounting_document(id: int, db: Session=Depends(get_db)):
     accounting_document = db.query(models.AccountingDocument).filter_by(id=id).first()
     db.delete(accounting_document)
     db.commit()

@@ -216,6 +216,24 @@ class AccountingDocument(BaseModel):
     class Config:
         orm_mode=True
 
+class AccountingDocumentUpdate(BaseModel):
+    number: str
+    client_number: str
+    client_name: str
+    client_address: str
+    issue_date: date
+    type: int
+    currency_type: int
+    total_sale: float
+    tax: float
+    total: float
+    status: int
+    updated_date: datetime = datetime.utcnow()
+    reservation_id: Optional[int]
+    
+    class Config:
+        orm_mode=True
+
 class ReservationWithClientAndRoom(Reservation):
     client: Optional[Client] = None
     room: Optional[Room] = None
