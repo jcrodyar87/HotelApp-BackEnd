@@ -42,7 +42,7 @@ CREATE TABLE `accounting_document` (
   KEY `reservation_id` (`reservation_id`),
   KEY `ix_accounting_document_id` (`id`),
   CONSTRAINT `accounting_document_ibfk_1` FOREIGN KEY (`reservation_id`) REFERENCES `reservation` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -51,7 +51,7 @@ CREATE TABLE `accounting_document` (
 
 LOCK TABLES `accounting_document` WRITE;
 /*!40000 ALTER TABLE `accounting_document` DISABLE KEYS */;
-INSERT INTO `accounting_document` VALUES (1,'F001-1','20448544801','ORELLANA VIAJES S.A.C.','Calle Nisperos 344','2023-02-19',1,1,123,27,150,1,1,'2023-02-08 01:41:29','2023-02-08 01:41:29');
+INSERT INTO `accounting_document` VALUES (1,'F001-1','20448544801','ORELLANA VIAJES S.A.C.','Calle Nisperos 344','2023-02-19',1,1,123,27,150,1,1,'2023-02-08 01:41:29','2023-02-08 01:41:29'),(2,'','','','','2023-02-11',0,0,0,8,0,1,8,'2023-02-11 15:22:46','2023-02-11 15:22:46');
 /*!40000 ALTER TABLE `accounting_document` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -90,6 +90,39 @@ LOCK TABLES `client` WRITE;
 /*!40000 ALTER TABLE `client` DISABLE KEYS */;
 INSERT INTO `client` VALUES (1,'Juan Carlos','Rodriguez Yarmas','44854480','966744497','jcry87@gmail.com',0,'2023-01-24 17:09:20',0,140,'2023-01-24 17:09:20','2023-02-04 16:00:55'),(2,'María Veronica','Castro','44808956','966733612','maria@gmail.com',0,'2023-01-24 17:12:29',1,37,'2023-01-24 17:12:29','2023-02-04 16:01:15'),(3,'Laura','García','09808071','966713689','laura@gmail.com',0,'2023-01-24 17:13:26',1,40,'2023-01-24 17:13:26','2023-01-24 17:13:26'),(4,'Raul','Martinez','08127890','909789611','raul@gmail.com',0,'2023-01-28 02:22:23',1,40,'2023-01-28 02:22:23','2023-01-28 02:22:23'),(5,'Carlos','Ugarte','44564890','909089678','carlos@gmail.com',0,'2023-01-28 02:23:07',1,40,'2023-01-28 02:23:07','2023-01-28 02:23:07'),(6,'Pedro','Orellana','44117890','909789609','pedroorell@gmail.com',0,'2023-01-28 02:24:42',1,40,'2023-01-28 02:24:42','2023-01-28 02:24:42');
 /*!40000 ALTER TABLE `client` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `closed_schedule`
+--
+
+DROP TABLE IF EXISTS `closed_schedule`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `closed_schedule` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `description` varchar(350) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` int DEFAULT NULL,
+  `room_id` int DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL,
+  `updated_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `room_id` (`room_id`),
+  KEY `ix_closed_schedule_id` (`id`),
+  CONSTRAINT `closed_schedule_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `closed_schedule`
+--
+
+LOCK TABLES `closed_schedule` WRITE;
+/*!40000 ALTER TABLE `closed_schedule` DISABLE KEYS */;
+INSERT INTO `closed_schedule` VALUES (1,'2023-02-15','2023-02-15','San Valentin',1,1,'2023-02-12 17:07:33','2023-02-12 17:10:16'),(2,'2023-02-21','2023-02-21','Cerrado por huelga',1,2,'2023-02-12 17:10:21','2023-02-12 17:11:54');
+/*!40000 ALTER TABLE `closed_schedule` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -148,7 +181,7 @@ CREATE TABLE `reservation` (
   KEY `ix_reservation_id` (`id`),
   CONSTRAINT `reservation_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`),
   CONSTRAINT `reservation_ibfk_2` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -157,7 +190,7 @@ CREATE TABLE `reservation` (
 
 LOCK TABLES `reservation` WRITE;
 /*!40000 ALTER TABLE `reservation` DISABLE KEYS */;
-INSERT INTO `reservation` VALUES (1,'2023-01-28','2023-01-28',2,0,150,150,0,1,1,1,'2023-01-24 17:33:04','2023-01-24 17:33:04'),(2,'2023-01-27','2023-01-27',2,0,150,150,0,1,2,3,'2023-01-24 17:33:41','2023-01-24 17:33:41'),(3,'2023-02-02','2023-02-02',2,0,0,300,300,1,3,2,'2023-02-03 16:52:08','2023-02-03 16:52:08'),(4,'2023-02-01','2023-02-01',1,0,0,150,150,1,3,1,'2023-02-03 17:00:29','2023-02-03 17:00:29'),(5,'2023-02-03','2023-02-03',1,0,0,150,150,1,4,1,'2023-02-03 17:02:37','2023-02-03 17:02:37'),(6,'2023-02-05','2023-02-04',1,0,150,0,150,1,1,4,'2023-02-03 17:03:57','2023-02-04 14:29:32'),(7,'2023-02-04','2023-02-04',2,1,0,150,150,1,6,2,'2023-02-04 16:03:53','2023-02-04 16:03:53');
+INSERT INTO `reservation` VALUES (1,'2023-01-28','2023-01-28',2,0,150,150,0,1,1,1,'2023-01-24 17:33:04','2023-01-24 17:33:04'),(2,'2023-01-27','2023-01-27',2,0,150,150,0,1,2,3,'2023-01-24 17:33:41','2023-01-24 17:33:41'),(3,'2023-02-02','2023-02-02',2,0,0,300,300,1,3,2,'2023-02-03 16:52:08','2023-02-03 16:52:08'),(4,'2023-01-31','2023-01-31',1,0,0,150,150,1,3,1,'2023-02-03 17:00:29','2023-02-10 14:32:08'),(5,'2023-02-02','2023-02-02',1,0,0,150,150,1,4,1,'2023-02-03 17:02:37','2023-02-10 14:32:18'),(6,'2023-02-05','2023-02-04',1,0,150,0,150,1,1,4,'2023-02-03 17:03:57','2023-02-04 14:29:32'),(7,'2023-02-04','2023-02-04',2,1,0,150,150,1,6,2,'2023-02-04 16:03:53','2023-02-04 16:03:53'),(8,'2023-02-08','2023-02-08',2,1,0,150,150,1,1,1,'2023-02-11 15:22:46','2023-02-11 15:51:38');
 /*!40000 ALTER TABLE `reservation` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -300,4 +333,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-07 21:57:18
+-- Dump completed on 2023-02-12 12:12:58

@@ -224,3 +224,25 @@ class ReservationWithClientAndRoomAndAccountingDocument(Reservation):
     client: Optional[Client] = None
     room: Optional[Room] = None
     accounting_document: Optional[AccountingDocument] = None
+
+class ClosedSchedule(BaseModel):
+    id: Optional[int]
+    start_date: date
+    end_date: date
+    description: str
+    status: int | None = None
+    room_id: Optional[int] | None = None
+
+    class Config:
+        orm_mode=True
+    
+class ClosedScheduleUpdate(BaseModel):
+    start_date: date
+    end_date: date
+    description: str
+    status: int
+    updated_date: datetime = datetime.utcnow()
+    room_id: Optional[int]
+    
+    class Config:
+        orm_mode=True

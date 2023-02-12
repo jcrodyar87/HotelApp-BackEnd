@@ -59,6 +59,7 @@ class Room(Base):
 
     room_type = relationship("RoomType", back_populates="room")
     reservation = relationship("Reservation", back_populates="room")
+    closed_schedule = relationship("ClosedSchedule", back_populates="room")
 
 
 class Country(Base):
@@ -133,3 +134,17 @@ class AccountingDocument(Base):
     updated_date = Column(DateTime, default=datetime.utcnow)
 
     #reservation = relationship("Reservation", back_populates="accounting_document")
+
+class ClosedSchedule(Base):
+    __tablename__ = "closed_schedule"
+
+    id = Column(Integer, primary_key=True, index=True)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    description = Column(String(350))
+    status = Column(Integer, default=1)
+    room_id = Column(Integer, ForeignKey("room.id"))
+    created_date = Column(DateTime, default=datetime.utcnow)
+    updated_date = Column(DateTime, default=datetime.utcnow)
+
+    room = relationship("Room", back_populates="closed_schedule")

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import roles, users, auth, countries, clients, room_types, rooms, reservations, accounting_documents
+from routes import roles, users, auth, countries, clients, room_types, rooms, reservations, accounting_documents, closed_schedules
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 #from fastapi.middleware.cors import CORSMiddleware
@@ -26,6 +26,7 @@ app.include_router(room_types.router)
 app.include_router(rooms.router)
 app.include_router(reservations.router)
 app.include_router(accounting_documents.router)
+app.include_router(closed_schedules.router)
 
 @app.get('/')
 def redirect_doc():
