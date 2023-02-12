@@ -246,3 +246,7 @@ class ClosedScheduleUpdate(BaseModel):
     
     class Config:
         orm_mode=True
+
+
+class ClosedScheduleWithRoom(ClosedSchedule):
+    room: Optional[Room] = None

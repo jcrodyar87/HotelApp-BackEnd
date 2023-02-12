@@ -18,17 +18,17 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/",response_model=List[schemas.ClosedSchedule])
+@router.get("/",response_model=List[schemas.ClosedScheduleWithRoom])
 async def show_closed_schedules(db: Session = Depends(get_db)):
     closed_schedules = db.query(models.ClosedSchedule).all()
     return closed_schedules
 
-@router.get("/{id}",response_model=schemas.ClosedSchedule)
+@router.get("/{id}",response_model=schemas.ClosedScheduleWithRoom)
 async def show_closed_schedule(id: int, db: Session = Depends(get_db)):
     closed_schedule = db.query(models.ClosedSchedule).filter_by(id=id).first()
     return closed_schedule
 
-@router.post("/",response_model=schemas.ClosedSchedule)
+@router.post("/",response_model=schemas.ClosedScheduleWithRoom)
 async def create_closed_schedule(country_params: schemas.ClosedSchedule, db: Session=Depends(get_db)):
     closed_schedule = models.ClosedSchedule(
         start_date = country_params.start_date,
@@ -42,7 +42,7 @@ async def create_closed_schedule(country_params: schemas.ClosedSchedule, db: Ses
     db.refresh(closed_schedule)
     return closed_schedule
 
-@router.put("/{id}",response_model=schemas.ClosedSchedule)
+@router.put("/{id}",response_model=schemas.ClosedScheduleWithRoom)
 async def update_closed_schedule(id: int, country_params: schemas.ClosedScheduleUpdate, db: Session=Depends(get_db)):
     closed_schedule = db.query(models.ClosedSchedule).filter_by(id=id).first()
     closed_schedule.start_date = country_params.start_date
