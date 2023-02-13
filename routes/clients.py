@@ -50,7 +50,7 @@ async def update_client(id: int, client_params: schemas.ClientUpdate, db: Sessio
     client = db.query(models.Client).filter_by(id=id).first()
     prev_reservation = db.query(models.Reservation).filter(models.Reservation.client_id==id).first()
     if client_params.status == 0 and prev_reservation is not None:
-        raise HTTPException(status_code=400, detail="No se puede inactivar el cliente porque tiene una reserva activa")
+        raise HTTPException(status_code=400, detail="No se puede desactivar el cliente porque tiene una reserva activa")
     else:
         client.firstname = client_params.firstname
         client.lastname = client_params.lastname

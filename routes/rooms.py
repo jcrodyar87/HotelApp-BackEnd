@@ -43,19 +43,23 @@ async def create_room(room_params: schemas.Room, db: Session=Depends(get_db)):
     db.refresh(room)
     return room
 
-@router.put("/{id}",response_model=schemas.Room)
+@router.put("/{id}")
 async def update_room(id: int, room_params: schemas.RoomUpdate, db: Session=Depends(get_db)):
-    room = db.query(models.Room).filter_by(id=id).first()
-    room.name = room_params.name
-    room.description = room_params.description
-    room.price = room_params.price
-    room.capacity = room_params.capacity
-    room.room_type_id = room_params.room_type_id
-    room.status = room_params.status
-    room.updated_date = datetime.utcnow()
-    db.commit()
-    db.refresh(room)
-    return room
+    prev_reservation = db.query(models.Reservation).filter(models.Reservation.room_id==id).first()
+    if room_params.status == 0 and prev_reservation is not None:
+        raise HTTPException(status_code=400, detail="No se puede desactivar la habitación porque tiene una reserva activa")
+    else:
+        room = db.query(models.Room).filter_by(id=id).first()
+        room.name = room_params.name
+        room.description = room_params.description
+        room.price = room_params.price
+        room.capacity = room_params.capacity
+        room.room_type_id = room_params.room_type_id
+        room.status = room_params.status
+        room.updated_date = datetime.utcnow()
+        db.commit()
+        db.refresh(room)
+        return room
 
 @router.delete("/{id}",response_model=schemas.Response)
 async def delete_room(id: int, db: Session=Depends(get_db)):
