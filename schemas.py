@@ -249,7 +249,8 @@ class ClosedSchedule(BaseModel):
     end_date: date
     description: str
     status: int | None = None
-    room_id: Optional[int] | None = None
+    #room_id: Optional[int] | None = None
+    rooms: Optional[List] | None = None
 
     class Config:
         orm_mode=True
