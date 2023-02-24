@@ -70,6 +70,9 @@ async def create_reservation(reservation_params: schemas.Reservation, db: Sessio
                 checkout = reservation_params.checkout, 
                 adults = reservation_params.adults,
                 children = reservation_params.children,
+                subtotal = reservation_params.subtotal,
+                additional_amount = reservation_params.additional_amount,
+                observations = reservation_params.observations,
                 total = reservation_params.total, 
                 done_payment = reservation_params.done_payment, 
                 pending_payment = reservation_params.pending_payment,
@@ -100,6 +103,9 @@ async def update_reservation(id: int, reservation_params: schemas.ReservationUpd
             reservation.checkout = reservation_params.checkout  
             reservation.adults = reservation_params.adults
             reservation.children = reservation_params.children
+            reservation.subtotal = reservation_params.subtotal
+            reservation.additional_amount = reservation_params.additional_amount
+            reservation.observations = reservation_params.observations
             reservation.total = reservation_params.total
             reservation.done_payment = reservation_params.done_payment
             reservation.pending_payment = reservation_params.pending_payment

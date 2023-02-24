@@ -169,6 +169,9 @@ class Reservation(BaseModel):
     checkout: date
     adults: int
     children: int
+    subtotal: Optional[float]
+    additional_amount: Optional[float]
+    observations: Optional[str]
     total: float
     done_payment: float
     pending_payment: float
@@ -184,6 +187,9 @@ class ReservationUpdate(BaseModel):
     checkout: date
     adults: int
     children: int
+    subtotal: float
+    additional_amount: float
+    observations: Optional[str]
     total: float
     done_payment: float
     pending_payment: float
