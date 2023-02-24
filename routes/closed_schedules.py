@@ -30,18 +30,23 @@ async def show_closed_schedule(id: int, db: Session = Depends(get_db)):
 
 @router.post("/")
 async def create_closed_schedule(closed_schedule_params: schemas.ClosedSchedule, db: Session=Depends(get_db)):
-    for room in closed_schedule_params.rooms:
-        closed_schedule = models.ClosedSchedule(
-            start_date = closed_schedule_params.start_date,
-            end_date = closed_schedule_params.end_date, 
-            description = closed_schedule_params.description,
-            status = closed_schedule_params.status,
-            room_id = room,
-            )
-        db.add(closed_schedule)
-        db.commit()
-        db.refresh(closed_schedule)
-    return closed_schedule
+    prev_reservation = db.query(models.Reservation).filter(models.Reservation.checkin ==closed_schedule_params.start_date ).\
+        filter(models.Reservation.room_id.in_(closed_schedule_params.rooms)).first()
+    if prev_reservation is not None:
+        raise HTTPException(status_code=400, detail="No se puede cerrar ese horario y habitación porque existen reservas activas")
+    else:
+        for room in closed_schedule_params.rooms:
+            closed_schedule = models.ClosedSchedule(
+                start_date = closed_schedule_params.start_date,
+                end_date = closed_schedule_params.end_date, 
+                description = closed_schedule_params.description,
+                status = closed_schedule_params.status,
+                room_id = room,
+                )
+            db.add(closed_schedule)
+            db.commit()
+            db.refresh(closed_schedule)
+        return closed_schedule
 
 @router.put("/{id}",response_model=schemas.ClosedScheduleWithRoom)
 async def update_closed_schedule(id: int, closed_schedule_params: schemas.ClosedScheduleUpdate, db: Session=Depends(get_db)):
