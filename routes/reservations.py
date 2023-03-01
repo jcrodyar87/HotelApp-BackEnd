@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from pathlib import Path
+from fpdf import FPDF
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -162,10 +163,59 @@ async def send_reservation_email(reservation_params: schemas.ReservationEmail, d
     return {"detail": "Se ha enviado un email con el detalle de la reserva"}
 
 @router.get("/{id}/download-pdf/",status_code=200)
-async def download_pdf():
-    file_path = Path("static/files/reservation-001.pdf")
-    file_pdf = "static/files/reservation-001.pdf"
-    if file_path.is_file():
-        return {"detail": file_pdf}
+async def download_pdf(id: int,db: Session=Depends(get_db)):
+    reservation = db.query(models.Reservation).filter_by(id=id).first()
+    if reservation is None:
+        raise HTTPException(status_code=400, detail="No se ha podido generar el pdf con el detalle de la reserva")
     else:
-        raise HTTPException(status_code=400, detail="No se ha podido encontrar el pdf de la reserva")
+        file_name = f'static/files/reservation-' + str(id) + '.pdf'
+        pdf = FPDF('P', 'mm', 'A4')
+        pdf.set_margins(20, 10, 20)
+        pdf.add_page()
+        pdf.add_font('DejaVu', '', 'static/fonts/DejaVuSans.ttf', uni=True)
+        pdf.add_font('DejaVuBold', 'B', 'static/fonts/DejaVuSans-Bold.ttf', uni=True)
+        pdf.image('static/images/logo.png', 80, 0, 60, 60)
+        pdf.ln(50)
+        pdf.set_font('DejaVuBold', 'B', 12)
+        pdf.cell(40, 10, 'HOTEL LAS PALMERAS DE HUANCHACO')
+        pdf.ln(10)
+        pdf.set_font('DejaVu', '', 10)
+        pdf.cell(40, 10, 'Av. Larco 1624 - Sector Los Tumbos – Huanchaco')
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Teléfono: 924284185 - (044) 46 11 99')
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Id de la reserva: #' + str(reservation.id))
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Nombre del cliente: ' + reservation.client.firstname + ' ' + reservation.client.lastname)
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Documento: ' + reservation.client.document)
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Teléfono: '+ reservation.client.phone)
+        pdf.ln(10)
+        pdf.multi_cell(180, 10, 'Su reserva: ' + reservation.room.name + ' - ' + reservation.room.description, 0, 0, 'L')
+        pdf.cell(40, 10, 'Clientes: ' + str(reservation.adults) + ' Adultos, '+ str(reservation.children) + ' Niños')
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Checkin: ' + str(reservation.checkin.strftime('%d/%m/%Y')))
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Checkout: '+ str(reservation.checkout.strftime('%d/%m/%Y')))
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Subtotal: S/ '+ "{:.2f}".format(reservation.subtotal))
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Cargo adicional: S/ '+ "{:.2f}".format(reservation.additional_amount))
+        pdf.ln(10)
+        if reservation.observations is not None:
+            pdf.multi_cell(180, 10, 'Observaciones: ' + reservation.observations, 0, 0, 'L')
+        pdf.cell(40, 10, 'Total: S/ '+ "{:.2f}".format(reservation.total))
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Total pagado: S/ ' + "{:.2f}".format(reservation.done_payment))
+        pdf.ln(10)
+        pdf.cell(40, 10, 'Queda por pagar: S/ ' + "{:.2f}".format(reservation.pending_payment))
+        pdf.ln(10)
+        pdf.cell(200, 10, 'Gracias por su reserva, lo esperamos pronto',0,0, 'C')
+        pdf.output(file_name, 'F')
+
+        file_path = Path(file_name)
+        if file_path.is_file():
+            return {"detail": 'http://127.0.0.1:8000/' + file_name}
+        else:
+            raise HTTPException(status_code=400, detail="No se ha podido encontrar el pdf de la reserva")
