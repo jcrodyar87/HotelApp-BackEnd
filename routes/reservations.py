@@ -7,6 +7,7 @@ import schemas, models
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+from pathlib import Path
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -159,3 +160,12 @@ async def send_reservation_email(reservation_params: schemas.ReservationEmail, d
     fm = FastMail(conf)
     await fm.send_message(message)
     return {"detail": "Se ha enviado un email con el detalle de la reserva"}
+
+@router.get("/{id}/download-pdf/",status_code=200)
+async def download_pdf():
+    file_path = Path("static/files/reservation-001.pdf")
+    file_pdf = "static/files/reservation-001.pdf"
+    if file_path.is_file():
+        return {"detail": file_pdf}
+    else:
+        raise HTTPException(status_code=400, detail="No se ha podido encontrar el pdf de la reserva")
