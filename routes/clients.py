@@ -6,6 +6,7 @@ from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from sqlalchemy import or_
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -19,8 +20,22 @@ def get_db():
         db.close()
 
 @router.get("/",response_model=List[schemas.ClientWithCountry])
-async def show_clients(db: Session = Depends(get_db)):
-    clients = db.query(models.Client).all()
+async def show_clients(country_id: str = '', status: str = '', text: str = '', db: Session = Depends(get_db)):
+    clients = db.query(models.Client)
+    if status != '':
+        clients = clients.filter(models.Client.status == status)
+    if country_id !='':
+        clients = clients.filter(models.Client.country_id == country_id)
+    if text != '':
+        clients = clients.filter(
+            or_(
+                models.Client.firstname.like('%'+text+'%'), 
+                models.Client.lastname.like('%'+text+'%'), 
+                models.Client.document.like('%'+text+'%'), 
+                models.Client.phone.like('%'+text+'%'), 
+                models.Client.email.like('%'+text+'%')
+            ))
+    clients = clients.order_by(models.Client.firstname.asc()).all()
     return clients
 
 @router.get("/{id}",response_model=schemas.ClientFull)
