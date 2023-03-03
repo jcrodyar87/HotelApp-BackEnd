@@ -32,6 +32,9 @@ class User(BaseModel):
     class Config:
         orm_mode=True
 
+class UserFull(User):
+    created_date: Optional[datetime]
+
 class UserUpdate(BaseModel):
     username: str
     firstname: str
@@ -51,7 +54,7 @@ class UserNewPassword(BaseModel):
     password: str
     token: str
 
-class UserWithRole(User):
+class UserWithRole(UserFull):
     role: Optional[Role] = None
 
 class Token(BaseModel):
