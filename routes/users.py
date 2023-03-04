@@ -72,3 +72,34 @@ async def delete_user(id: int, db: Session=Depends(get_db)):
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response
+
+@router.get("/download-excel/",status_code=200)
+async def download_excel(db: Session=Depends(get_db)):
+    file_name = f'static/files/users.xlsx'
+    wb = Workbook()
+    ws = wb.active
+    users = db.query(models.User).filter(models.User.status != 3).all()
+    ws.append([
+                'Nombre de usuario', 
+                'Nombre', 
+                'Apellido',
+                'Rol',
+                'Fecha de Creación',
+                'Estado'
+            ])
+    for user in users:
+        ws.append([
+                    user.username, 
+                    user.firstname,
+                    user.lastname,
+                    user.role.name, 
+                    user.created_date, 
+                    user.status
+                ])
+    wb.save(file_name)
+    
+    file_path = Path(file_name)
+    if file_path.is_file():
+        return {"detail": 'http://127.0.0.1:8000/' + file_name}
+    else:
+        raise HTTPException(status_code=400, detail="No se ha podido generar el excel de los roles")
