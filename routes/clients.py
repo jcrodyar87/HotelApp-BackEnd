@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import or_
 from pathlib import Path
 from openpyxl import Workbook
+from fastapi.security import OAuth2PasswordBearer
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -21,8 +22,10 @@ def get_db():
     finally:
         db.close()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 @router.get("/",response_model=List[schemas.ClientWithCountry])
-async def show_clients(country_id: str = '', status: str = '', text: str = '', db: Session = Depends(get_db)):
+async def show_clients(country_id: str = '', status: str = '', text: str = '', token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     clients = db.query(models.Client)
     if status != '':
         clients = clients.filter(models.Client.status == status)
