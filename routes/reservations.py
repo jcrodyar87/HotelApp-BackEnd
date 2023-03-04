@@ -67,6 +67,15 @@ async def create_reservation(reservation_params: schemas.Reservation, db: Sessio
         if prev_closed_schedule is not None:
             raise HTTPException(status_code=400, detail="El horario elegido no recibe reservas porque está bloqueado - " + prev_closed_schedule.description)
         else:
+
+            reservations = db.query(models.Reservation).filter(models.Reservation.client_id == reservation_params.client_id).\
+                    filter(models.Reservation.status != 3).count()
+            if reservations is None:
+                reservations = 0
+            client = db.query(models.Client).filter(models.Client.id == reservation_params.client_id).first()
+            client.last_reservation = datetime.utcnow()
+            client.reservations_quantity = reservations + 1
+
             reservation = models.Reservation(
                 checkin = reservation_params.checkin, 
                 checkout = reservation_params.checkout, 
@@ -100,6 +109,14 @@ async def update_reservation(id: int, reservation_params: schemas.ReservationUpd
         if prev_closed_schedule is not None:
             raise HTTPException(status_code=400, detail="El horario elegido no recibe reservas porque está bloqueado - " + prev_closed_schedule.description)
         else:
+            reservations = db.query(models.Reservation).filter(models.Reservation.client_id == reservation_params.client_id).\
+                    filter(models.Reservation.status != 3).count()
+            if reservations is None:
+                reservations = 0
+            client = db.query(models.Client).filter(models.Client.id == reservation_params.client_id).first()
+            client.last_reservation = datetime.utcnow()
+            client.reservations_quantity = reservations + 1
+            
             reservation = db.query(models.Reservation).filter_by(id=id).first()
             reservation.checkin = reservation_params.checkin
             reservation.checkout = reservation_params.checkout  

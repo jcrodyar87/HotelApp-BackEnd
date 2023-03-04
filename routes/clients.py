@@ -90,11 +90,25 @@ async def delete_client(id: int, db: Session=Depends(get_db)):
     return response
 
 @router.get("/download-excel/",status_code=200)
-async def download_excel(db: Session=Depends(get_db)):
+async def download_excel(country_id: str = '', status: str = '', text: str = '', db: Session=Depends(get_db)):
     file_name = f'static/files/clients.xlsx'
     wb = Workbook()
     ws = wb.active
-    clients = db.query(models.Client).filter(models.Client.status != 3).all()
+    clients = db.query(models.Client)
+    if status != '':
+        clients = clients.filter(models.Client.status == status)
+    if country_id !='':
+        clients = clients.filter(models.Client.country_id == country_id)
+    if text != '':
+        clients = clients.filter(
+            or_(
+                models.Client.firstname.like('%'+text+'%'), 
+                models.Client.lastname.like('%'+text+'%'), 
+                models.Client.document.like('%'+text+'%'), 
+                models.Client.phone.like('%'+text+'%'), 
+                models.Client.email.like('%'+text+'%')
+            ))
+    clients = clients.filter(models.Client.status != 3).order_by(models.Client.firstname.asc()).all()
     ws.append([
                 'Cliente', 
                 'Documento', 
