@@ -26,7 +26,7 @@ def get_password_hash(password):
 
 @router.get("/",response_model=List[schemas.UserWithRole], response_model_exclude={'password','token'})
 async def show_users(db: Session = Depends(get_db)):
-    users = db.query(models.User).all()
+    users = db.query(models.User).filter(models.User.status != 3).all()
     return users
 
 @router.get("/{id}",response_model=schemas.User, response_model_exclude={'password','token'})
@@ -66,7 +66,8 @@ async def update_user(id: int, user_params: schemas.UserUpdate, db: Session=Depe
 @router.delete("/{id}",response_model=schemas.Response)
 async def delete_user(id: int, db: Session=Depends(get_db)):
     user = db.query(models.User).filter_by(id=id).first()
-    db.delete(user)
+    user.status = 3
+#   db.delete(user)
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response

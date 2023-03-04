@@ -18,7 +18,7 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/",response_model=List[schemas.Role])
+@router.get("/",response_model=List[schemas.RoleFull])
 async def show_roles(db: Session = Depends(get_db)):
     roles = db.query(models.Role).all()
     return roles

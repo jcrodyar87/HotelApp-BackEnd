@@ -10,6 +10,8 @@ class Role(BaseModel):
 
     class Config:
         orm_mode=True
+class RoleFull(Role):
+    created_date: Optional[datetime]
 
 class RoleUpdate(BaseModel):
     name: str
