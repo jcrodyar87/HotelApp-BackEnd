@@ -1,14 +1,3 @@
-py -m pip install "fastapi[all]"
-py -m pip install sqlalchemy
-py -m pip install mysql
-py -m pip install mysql-connector-python
-py -m pip install "python-jose[cryptography]"
-py -m pip install "passlib[bcrypt]"
-py -m pip install fastapi-mail
-py -m pip install "uvicorn[standard]"
-py -m pip install fpdf
+py -m pip install "fastapi[all]" sqlalchemy mysql mysql-connector-python "python-jose[cryptography]" "passlib[bcrypt]" fastapi-mail "uvicorn[standard]" fpdf openpyxl
 # Run server
 py -m  uvicorn main:app --reload
-
-
-py -m pip install "fastapi[all]"  sqlalchemy mysql mysql-connector-python "python-jose[cryptography]" "passlib[bcrypt]" fastapi-mail "uvicorn[standard]" fpdf

@@ -6,6 +6,8 @@ from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from pathlib import Path
+from openpyxl import Workbook
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -58,3 +60,30 @@ async def delete_role(id: int, db: Session=Depends(get_db)):
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response
+
+@router.get("/download-excel/",status_code=200)
+async def download_excel(db: Session=Depends(get_db)):
+    file_name = f'static/files/roles.xlsx'
+    wb = Workbook()
+    ws = wb.active
+    roles = db.query(models.Role).filter(models.Role.status != 3).all()
+    ws.append([
+                'Nombre', 
+                'Módulos', 
+                'Fecha de Creación',
+                'Estado'
+            ])
+    for rol in roles:
+        ws.append([
+                    rol.name, 
+                    rol.modules, 
+                    rol.created_date, 
+                    rol.status
+                ])
+    wb.save(file_name)
+    
+    file_path = Path(file_name)
+    if file_path.is_file():
+        return {"detail": 'http://127.0.0.1:8000/' + file_name}
+    else:
+        raise HTTPException(status_code=400, detail="No se ha podido generar el excel de los roles")

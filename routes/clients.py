@@ -7,6 +7,8 @@ import schemas, models
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from sqlalchemy import or_
+from pathlib import Path
+from openpyxl import Workbook
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -86,3 +88,39 @@ async def delete_client(id: int, db: Session=Depends(get_db)):
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response
+
+@router.get("/download-excel/",status_code=200)
+async def download_excel(db: Session=Depends(get_db)):
+    file_name = f'static/files/clients.xlsx'
+    wb = Workbook()
+    ws = wb.active
+    clients = db.query(models.Client).filter(models.Client.status != 3).all()
+    ws.append([
+                'Cliente', 
+                'Documento', 
+                'Teléfono', 
+                'Email', 
+                'País',
+                'N° de Reservas',
+                'Última Reserva',
+                'Fecha de Creación',
+                'Estado'
+            ])
+    for client in clients:
+        ws.append([
+                    client.firstname + ' ' + client.lastname,client.document, 
+                    client.phone, 
+                    client.email, 
+                    client.country.name, 
+                    client.reservations_quantity, 
+                    client.last_reservation, 
+                    client.created_date, 
+                    client.status
+                ])
+    wb.save(file_name)
+    
+    file_path = Path(file_name)
+    if file_path.is_file():
+        return {"detail": 'http://127.0.0.1:8000/' + file_name}
+    else:
+        raise HTTPException(status_code=400, detail="No se ha podido generar el excel de los clientes")

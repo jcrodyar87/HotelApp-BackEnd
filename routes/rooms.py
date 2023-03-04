@@ -6,6 +6,8 @@ from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from pathlib import Path
+from openpyxl import Workbook
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -68,3 +70,36 @@ async def delete_room(id: int, db: Session=Depends(get_db)):
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response
+
+@router.get("/download-excel/",status_code=200)
+async def download_excel(db: Session=Depends(get_db)):
+    file_name = f'static/files/rooms.xlsx'
+    wb = Workbook()
+    ws = wb.active
+    rooms = db.query(models.Room).filter(models.Room.status != 3).all()
+    ws.append([
+                'Nombre', 
+                'Descripción', 
+                'Precio', 
+                'Capacidad', 
+                'Tipo',
+                'Fecha de Creación',
+                'Estado'
+            ])
+    for room in rooms:
+        ws.append([
+                    room.name, 
+                    room.description, 
+                    room.price, 
+                    room.capacity, 
+                    room.room_type.name, 
+                    room.created_date, 
+                    room.status
+                ])
+    wb.save(file_name)
+    
+    file_path = Path(file_name)
+    if file_path.is_file():
+        return {"detail": 'http://127.0.0.1:8000/' + file_name}
+    else:
+        raise HTTPException(status_code=400, detail="No se ha podido generar el excel de las habitaciones")
