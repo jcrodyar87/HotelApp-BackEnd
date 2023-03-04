@@ -20,7 +20,7 @@ def get_db():
 
 @router.get("/",response_model=List[schemas.Country])
 async def show_countries(db: Session = Depends(get_db)):
-    countries = db.query(models.Country).all()
+    countries = db.query(models.Country).filter(models.Country.status != 3).all()
     return countries
 
 @router.get("/{id}",response_model=schemas.Country)
@@ -54,7 +54,7 @@ async def update_country(id: int, country_params: schemas.CountryUpdate, db: Ses
 @router.delete("/{id}",response_model=schemas.Response)
 async def delete_country(id: int, db: Session=Depends(get_db)):
     country = db.query(models.Country).filter_by(id=id).first()
-    db.delete(country)
+    country.status = 3
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response

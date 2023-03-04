@@ -96,7 +96,7 @@ async def update_reservation(id: int, reservation_params: schemas.ReservationUpd
         raise HTTPException(status_code=400, detail="Ya existe una reserva para ese horario y habitación")
     else:
         prev_closed_schedule = db.query(models.ClosedSchedule).filter(models.ClosedSchedule.start_date == reservation_params.checkin ).\
-        filter(models.ClosedSchedule.room_id == reservation_params.room_id).first()
+        filter(models.ClosedSchedule.room_id == reservation_params.room_id).filter(models.ClosedSchedule.status != 3).first()
         if prev_closed_schedule is not None:
             raise HTTPException(status_code=400, detail="El horario elegido no recibe reservas porque está bloqueado - " + prev_closed_schedule.description)
         else:

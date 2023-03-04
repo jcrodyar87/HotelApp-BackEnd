@@ -20,7 +20,7 @@ def get_db():
 
 @router.get("/",response_model=List[schemas.ClosedScheduleWithRoom])
 async def show_closed_schedules(db: Session = Depends(get_db)):
-    closed_schedules = db.query(models.ClosedSchedule).all()
+    closed_schedules = db.query(models.ClosedSchedule).filter(models.ClosedSchedule.status != 3).all()
     return closed_schedules
 
 @router.get("/{id}",response_model=schemas.ClosedScheduleWithRoom)
@@ -31,7 +31,7 @@ async def show_closed_schedule(id: int, db: Session = Depends(get_db)):
 @router.post("/")
 async def create_closed_schedule(closed_schedule_params: schemas.ClosedSchedule, db: Session=Depends(get_db)):
     prev_reservation = db.query(models.Reservation).filter(models.Reservation.checkin ==closed_schedule_params.start_date ).\
-        filter(models.Reservation.room_id.in_(closed_schedule_params.rooms)).first()
+        filter(models.Reservation.room_id.in_(closed_schedule_params.rooms)).filter(models.Reservation.status != 3).first()
     if prev_reservation is not None:
         raise HTTPException(status_code=400, detail="No se puede cerrar ese horario y habitación porque existen reservas activas")
     else:
@@ -64,7 +64,7 @@ async def update_closed_schedule(id: int, closed_schedule_params: schemas.Closed
 @router.delete("/{id}",response_model=schemas.Response)
 async def delete_closed_schedule(id: int, db: Session=Depends(get_db)):
     closed_schedule = db.query(models.ClosedSchedule).filter_by(id=id).first()
-    db.delete(closed_schedule)
+    closed_schedule.status = 3
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response
