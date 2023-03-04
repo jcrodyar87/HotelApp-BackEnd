@@ -6,6 +6,7 @@ from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from fastapi.security import OAuth2PasswordBearer
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -18,18 +19,20 @@ def get_db():
     finally:
         db.close()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 @router.get("/",response_model=List[schemas.ClosedScheduleWithRoom])
-async def show_closed_schedules(db: Session = Depends(get_db)):
+async def show_closed_schedules(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     closed_schedules = db.query(models.ClosedSchedule).filter(models.ClosedSchedule.status != 3).all()
     return closed_schedules
 
 @router.get("/{id}",response_model=schemas.ClosedScheduleWithRoom)
-async def show_closed_schedule(id: int, db: Session = Depends(get_db)):
+async def show_closed_schedule(id: int, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     closed_schedule = db.query(models.ClosedSchedule).filter_by(id=id).first()
     return closed_schedule
 
 @router.post("/")
-async def create_closed_schedule(closed_schedule_params: schemas.ClosedSchedule, db: Session=Depends(get_db)):
+async def create_closed_schedule(closed_schedule_params: schemas.ClosedSchedule, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     prev_reservation = db.query(models.Reservation).filter(models.Reservation.checkin ==closed_schedule_params.start_date ).\
         filter(models.Reservation.room_id.in_(closed_schedule_params.rooms)).filter(models.Reservation.status != 3).first()
     if prev_reservation is not None:
@@ -49,7 +52,7 @@ async def create_closed_schedule(closed_schedule_params: schemas.ClosedSchedule,
         return closed_schedule
 
 @router.put("/{id}",response_model=schemas.ClosedScheduleWithRoom)
-async def update_closed_schedule(id: int, closed_schedule_params: schemas.ClosedScheduleUpdate, db: Session=Depends(get_db)):
+async def update_closed_schedule(id: int, closed_schedule_params: schemas.ClosedScheduleUpdate, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     closed_schedule = db.query(models.ClosedSchedule).filter_by(id=id).first()
     closed_schedule.start_date = closed_schedule_params.start_date
     closed_schedule.end_date = closed_schedule_params.end_date
@@ -62,7 +65,7 @@ async def update_closed_schedule(id: int, closed_schedule_params: schemas.Closed
     return closed_schedule
 
 @router.delete("/{id}",response_model=schemas.Response)
-async def delete_closed_schedule(id: int, db: Session=Depends(get_db)):
+async def delete_closed_schedule(id: int, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     closed_schedule = db.query(models.ClosedSchedule).filter_by(id=id).first()
     closed_schedule.status = 3
     db.commit()

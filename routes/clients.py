@@ -44,12 +44,12 @@ async def show_clients(country_id: str = '', status: str = '', text: str = '', t
     return clients
 
 @router.get("/{id}",response_model=schemas.ClientFull)
-async def show_client(id: int, db: Session = Depends(get_db)):
+async def show_client(id: int, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     client = db.query(models.Client).filter_by(id=id).first()
     return client
 
 @router.post("/",response_model=schemas.ClientFull)
-async def create_client(client_params: schemas.Client, db: Session=Depends(get_db)):
+async def create_client(client_params: schemas.Client, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     client = models.Client(
         firstname = client_params.firstname,
         lastname = client_params.lastname, 
@@ -66,7 +66,7 @@ async def create_client(client_params: schemas.Client, db: Session=Depends(get_d
     return client
 
 @router.put("/{id}")
-async def update_client(id: int, client_params: schemas.ClientUpdate, db: Session=Depends(get_db)):
+async def update_client(id: int, client_params: schemas.ClientUpdate, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     client = db.query(models.Client).filter_by(id=id).first()
     prev_reservation = db.query(models.Reservation).filter(models.Reservation.client_id==id).filter(models.Reservation.status != 3).first()
     if client_params.status == 0 and prev_reservation is not None:
@@ -85,7 +85,7 @@ async def update_client(id: int, client_params: schemas.ClientUpdate, db: Sessio
         return client
 
 @router.delete("/{id}",response_model=schemas.Response)
-async def delete_client(id: int, db: Session=Depends(get_db)):
+async def delete_client(id: int, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     client = db.query(models.Client).filter_by(id=id).first()
     client.status = 3
     db.commit()

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from pathlib import Path
 from openpyxl import Workbook
+from fastapi.security import OAuth2PasswordBearer
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -20,18 +21,20 @@ def get_db():
     finally:
         db.close()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 @router.get("/",response_model=List[schemas.RoomWithRoomType])
-async def show_rooms(db: Session = Depends(get_db)):
+async def show_rooms(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     rooms = db.query(models.Room).filter(models.Room.status != 3).all()
     return rooms
 
 @router.get("/{id}",response_model=schemas.Room)
-async def show_room(id: int, db: Session = Depends(get_db)):
+async def show_room(id: int, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     room = db.query(models.Room).filter_by(id=id).first()
     return room
 
 @router.post("/",response_model=schemas.Room)
-async def create_room(room_params: schemas.Room, db: Session=Depends(get_db)):
+async def create_room(room_params: schemas.Room, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     room = models.Room(
         name = room_params.name, 
         description = room_params.description, 
@@ -46,7 +49,7 @@ async def create_room(room_params: schemas.Room, db: Session=Depends(get_db)):
     return room
 
 @router.put("/{id}")
-async def update_room(id: int, room_params: schemas.RoomUpdate, db: Session=Depends(get_db)):
+async def update_room(id: int, room_params: schemas.RoomUpdate, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     prev_reservation = db.query(models.Reservation).filter(models.Reservation.room_id==id).first()
     if room_params.status == 0 and prev_reservation is not None:
         raise HTTPException(status_code=400, detail="No se puede desactivar la habitación porque tiene una reserva activa")
@@ -64,7 +67,7 @@ async def update_room(id: int, room_params: schemas.RoomUpdate, db: Session=Depe
         return room
 
 @router.delete("/{id}",response_model=schemas.Response)
-async def delete_room(id: int, db: Session=Depends(get_db)):
+async def delete_room(id: int, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     room = db.query(models.Room).filter_by(id=id).first()
     room.status = 3
     db.commit()

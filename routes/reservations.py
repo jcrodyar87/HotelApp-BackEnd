@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from pathlib import Path
 from fpdf import FPDF
+from fastapi.security import OAuth2PasswordBearer
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -20,6 +21,8 @@ def get_db():
         yield db
     finally:
         db.close()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 conf = ConnectionConfig(
     MAIL_USERNAME =  "7fa57049544924",
@@ -34,7 +37,7 @@ conf = ConnectionConfig(
 )
 
 @router.get("/",response_model=List[schemas.ReservationWithClientAndRoom])
-async def show_reservations(start_date: str = '', end_date: str = '', db: Session = Depends(get_db)):
+async def show_reservations(start_date: str = '', end_date: str = '', token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     if start_date == '' and end_date == '':
         reservations = db.query(models.Reservation).filter(models.Reservation.status != 3).order_by(models.Reservation.checkin.asc()).all()
     else:
@@ -43,12 +46,12 @@ async def show_reservations(start_date: str = '', end_date: str = '', db: Sessio
     return reservations
 
 @router.get("/{id}",response_model=schemas.ReservationWithClientAndRoom)
-async def show_reservation(id: int, db: Session = Depends(get_db)):
+async def show_reservation(id: int, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     reservation = db.query(models.Reservation).filter_by(id=id).first()
     return reservation
 
 @router.get("/{id}/accounting-document/")
-async def show_reservation_accounting_document(id: int, db: Session = Depends(get_db)):
+async def show_reservation_accounting_document(id: int, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     accounting_document = db.query(models.AccountingDocument).filter_by(reservation_id=id).first()
     if accounting_document is None:
         return {"detail": "La reserva no tiene un pago registrado"}
@@ -56,7 +59,7 @@ async def show_reservation_accounting_document(id: int, db: Session = Depends(ge
         return accounting_document
 
 @router.post("/")
-async def create_reservation(reservation_params: schemas.Reservation, db: Session=Depends(get_db)):
+async def create_reservation(reservation_params: schemas.Reservation, token: str = Depends(oauth2_scheme),  db: Session=Depends(get_db)):
     prev_reservation = db.query(models.Reservation).filter(models.Reservation.checkin ==reservation_params.checkin ).\
         filter(models.Reservation.room_id == reservation_params.room_id).filter(models.Reservation.status != 3).first()
     if prev_reservation is not None:
@@ -97,7 +100,7 @@ async def create_reservation(reservation_params: schemas.Reservation, db: Sessio
             return reservation
 
 @router.put("/{id}")
-async def update_reservation(id: int, reservation_params: schemas.ReservationUpdate, db: Session=Depends(get_db)):
+async def update_reservation(id: int, reservation_params: schemas.ReservationUpdate, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     prev_reservation = db.query(models.Reservation).filter(models.Reservation.checkin ==reservation_params.checkin ).\
         filter(models.Reservation.room_id == reservation_params.room_id).\
         filter(models.Reservation.id != id).filter(models.Reservation.status != 3).first()
@@ -137,7 +140,7 @@ async def update_reservation(id: int, reservation_params: schemas.ReservationUpd
             return reservation
 
 @router.delete("/{id}",response_model=schemas.Response)
-async def delete_reservation(id: int, db: Session=Depends(get_db)):
+async def delete_reservation(id: int, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     reservation = db.query(models.Reservation).filter_by(id=id).first()
     reservation.status = 3
     db.commit()
@@ -145,7 +148,7 @@ async def delete_reservation(id: int, db: Session=Depends(get_db)):
     return response
 
 @router.post("/send-email/",status_code=200)
-async def send_reservation_email(reservation_params: schemas.ReservationEmail, db: Session=Depends(get_db)):
+async def send_reservation_email(reservation_params: schemas.ReservationEmail, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     reservation = db.query(models.Reservation).filter_by(id=reservation_params.id).first()
     if reservation is None:
         raise HTTPException(status_code=400, detail="No se ha podido enviar el email con el detalle de la reserva")
@@ -180,7 +183,7 @@ async def send_reservation_email(reservation_params: schemas.ReservationEmail, d
     return {"detail": "Se ha enviado un email con el detalle de la reserva"}
 
 @router.get("/{id}/download-pdf/",status_code=200)
-async def download_pdf(id: int,db: Session=Depends(get_db)):
+async def download_pdf(id: int, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     reservation = db.query(models.Reservation).filter_by(id=id).first()
     if reservation is None:
         raise HTTPException(status_code=400, detail="No se ha podido generar el pdf con el detalle de la reserva")

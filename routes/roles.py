@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from pathlib import Path
 from openpyxl import Workbook
+from fastapi.security import OAuth2PasswordBearer
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -20,18 +21,20 @@ def get_db():
     finally:
         db.close()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 @router.get("/",response_model=List[schemas.RoleFull])
-async def show_roles(db: Session = Depends(get_db)):
+async def show_roles(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     roles = db.query(models.Role).filter(models.Role.status != 3).all()
     return roles
 
 @router.get("/{id}",response_model=schemas.Role)
-async def show_role(id: int, db: Session = Depends(get_db)):
+async def show_role(id: int, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     role = db.query(models.Role).filter_by(id=id).first()
     return role
 
 @router.post("/",response_model=schemas.Role)
-async def create_role(role_params: schemas.Role, db: Session=Depends(get_db)):
+async def create_role(role_params: schemas.Role, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     role = models.Role(
         name = role_params.name,
         modules = role_params.modules, 
@@ -43,7 +46,7 @@ async def create_role(role_params: schemas.Role, db: Session=Depends(get_db)):
     return role
 
 @router.put("/{id}",response_model=schemas.Role)
-async def update_role(id: int, role_params: schemas.RoleUpdate, db: Session=Depends(get_db)):
+async def update_role(id: int, role_params: schemas.RoleUpdate, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     role = db.query(models.Role).filter_by(id=id).first()
     role.name = role_params.name
     role.modules = role_params.modules
@@ -54,7 +57,7 @@ async def update_role(id: int, role_params: schemas.RoleUpdate, db: Session=Depe
     return role
 
 @router.delete("/{id}",response_model=schemas.Response)
-async def delete_role(id: int, db: Session=Depends(get_db)):
+async def delete_role(id: int, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     role = db.query(models.Role).filter_by(id=id).first()
     role.status = 3
     db.commit()

@@ -9,6 +9,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from pathlib import Path
 from openpyxl import Workbook
+from fastapi.security import OAuth2PasswordBearer
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -21,23 +22,25 @@ def get_db():
     finally:
         db.close()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_password_hash(password):
     return pwd_context.hash(password)
 
 @router.get("/",response_model=List[schemas.UserWithRole], response_model_exclude={'password','token'})
-async def show_users(db: Session = Depends(get_db)):
+async def show_users(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     users = db.query(models.User).filter(models.User.status != 3).all()
     return users
 
 @router.get("/{id}",response_model=schemas.User, response_model_exclude={'password','token'})
-async def show_user(id: int, db: Session = Depends(get_db)):
+async def show_user(id: int, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     user = db.query(models.User).filter_by(id=id).first()
     return user
 
 @router.post("/",response_model=schemas.User, response_model_exclude={'password','token'})
-async def create_user(user_params: schemas.User, db: Session=Depends(get_db)):
+async def create_user(user_params: schemas.User, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     user = models.User(
         username = user_params.username,
         firstname = user_params.firstname,
@@ -52,7 +55,7 @@ async def create_user(user_params: schemas.User, db: Session=Depends(get_db)):
     return user
 
 @router.put("/{id}",response_model=schemas.User, response_model_exclude={'password','token'})
-async def update_user(id: int, user_params: schemas.UserUpdate, db: Session=Depends(get_db)):
+async def update_user(id: int, user_params: schemas.UserUpdate, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     user = db.query(models.User).filter_by(id=id).first()
     user.username = user_params.username
     user.firstname = user_params.firstname
@@ -66,7 +69,7 @@ async def update_user(id: int, user_params: schemas.UserUpdate, db: Session=Depe
     return user
 
 @router.delete("/{id}",response_model=schemas.Response)
-async def delete_user(id: int, db: Session=Depends(get_db)):
+async def delete_user(id: int, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     user = db.query(models.User).filter_by(id=id).first()
     user.status = 3
     db.commit()
