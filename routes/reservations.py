@@ -36,10 +36,10 @@ conf = ConnectionConfig(
 @router.get("/",response_model=List[schemas.ReservationWithClientAndRoom])
 async def show_reservations(start_date: str = '', end_date: str = '', db: Session = Depends(get_db)):
     if start_date == '' and end_date == '':
-        reservations = db.query(models.Reservation).order_by(models.Reservation.checkin.asc()).all()
+        reservations = db.query(models.Reservation).filter(models.Reservation.status != 3).order_by(models.Reservation.checkin.asc()).all()
     else:
         reservations = db.query(models.Reservation).filter(models.Reservation.checkin <= end_date).\
-        filter(models.Reservation.checkin >= start_date).order_by(models.Reservation.checkin.asc()).all()
+        filter(models.Reservation.checkin >= start_date).filter(models.Reservation.status != 3).order_by(models.Reservation.checkin.asc()).all()
     return reservations
 
 @router.get("/{id}",response_model=schemas.ReservationWithClientAndRoom)
@@ -58,7 +58,7 @@ async def show_reservation_accounting_document(id: int, db: Session = Depends(ge
 @router.post("/")
 async def create_reservation(reservation_params: schemas.Reservation, db: Session=Depends(get_db)):
     prev_reservation = db.query(models.Reservation).filter(models.Reservation.checkin ==reservation_params.checkin ).\
-        filter(models.Reservation.room_id == reservation_params.room_id).first()
+        filter(models.Reservation.room_id == reservation_params.room_id).filter(models.Reservation.status != 3).first()
     if prev_reservation is not None:
         raise HTTPException(status_code=400, detail="Ya existe una reserva para ese horario y habitación")
     else:
@@ -91,7 +91,7 @@ async def create_reservation(reservation_params: schemas.Reservation, db: Sessio
 async def update_reservation(id: int, reservation_params: schemas.ReservationUpdate, db: Session=Depends(get_db)):
     prev_reservation = db.query(models.Reservation).filter(models.Reservation.checkin ==reservation_params.checkin ).\
         filter(models.Reservation.room_id == reservation_params.room_id).\
-        filter(models.Reservation.id != id).first()
+        filter(models.Reservation.id != id).filter(models.Reservation.status != 3).first()
     if prev_reservation is not None:
         raise HTTPException(status_code=400, detail="Ya existe una reserva para ese horario y habitación")
     else:
@@ -122,7 +122,7 @@ async def update_reservation(id: int, reservation_params: schemas.ReservationUpd
 @router.delete("/{id}",response_model=schemas.Response)
 async def delete_reservation(id: int, db: Session=Depends(get_db)):
     reservation = db.query(models.Reservation).filter_by(id=id).first()
-    db.delete(reservation)
+    reservation.status = 3
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response

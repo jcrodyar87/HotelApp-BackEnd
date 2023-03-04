@@ -20,7 +20,7 @@ def get_db():
 
 @router.get("/",response_model=List[schemas.RoomWithRoomType])
 async def show_rooms(db: Session = Depends(get_db)):
-    rooms = db.query(models.Room).all()
+    rooms = db.query(models.Room).filter(models.Room.status != 3).all()
     return rooms
 
 @router.get("/{id}",response_model=schemas.Room)
@@ -64,7 +64,7 @@ async def update_room(id: int, room_params: schemas.RoomUpdate, db: Session=Depe
 @router.delete("/{id}",response_model=schemas.Response)
 async def delete_room(id: int, db: Session=Depends(get_db)):
     room = db.query(models.Room).filter_by(id=id).first()
-    db.delete(room)
+    room.status = 3
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response

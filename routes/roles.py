@@ -20,7 +20,7 @@ def get_db():
 
 @router.get("/",response_model=List[schemas.RoleFull])
 async def show_roles(db: Session = Depends(get_db)):
-    roles = db.query(models.Role).all()
+    roles = db.query(models.Role).filter(models.Role.status != 3).all()
     return roles
 
 @router.get("/{id}",response_model=schemas.Role)
@@ -54,7 +54,7 @@ async def update_role(id: int, role_params: schemas.RoleUpdate, db: Session=Depe
 @router.delete("/{id}",response_model=schemas.Response)
 async def delete_role(id: int, db: Session=Depends(get_db)):
     role = db.query(models.Role).filter_by(id=id).first()
-    db.delete(role)
+    role.status = 3
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response

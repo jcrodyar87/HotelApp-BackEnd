@@ -35,7 +35,7 @@ async def show_clients(country_id: str = '', status: str = '', text: str = '', d
                 models.Client.phone.like('%'+text+'%'), 
                 models.Client.email.like('%'+text+'%')
             ))
-    clients = clients.order_by(models.Client.firstname.asc()).all()
+    clients = clients.filter(models.Client.status != 3).order_by(models.Client.firstname.asc()).all()
     return clients
 
 @router.get("/{id}",response_model=schemas.ClientFull)
@@ -63,7 +63,7 @@ async def create_client(client_params: schemas.Client, db: Session=Depends(get_d
 @router.put("/{id}")
 async def update_client(id: int, client_params: schemas.ClientUpdate, db: Session=Depends(get_db)):
     client = db.query(models.Client).filter_by(id=id).first()
-    prev_reservation = db.query(models.Reservation).filter(models.Reservation.client_id==id).first()
+    prev_reservation = db.query(models.Reservation).filter(models.Reservation.client_id==id).filter(models.Reservation.status != 3).first()
     if client_params.status == 0 and prev_reservation is not None:
         raise HTTPException(status_code=400, detail="No se puede desactivar el cliente porque tiene una reserva activa")
     else:
@@ -82,7 +82,7 @@ async def update_client(id: int, client_params: schemas.ClientUpdate, db: Sessio
 @router.delete("/{id}",response_model=schemas.Response)
 async def delete_client(id: int, db: Session=Depends(get_db)):
     client = db.query(models.Client).filter_by(id=id).first()
-    db.delete(client)
+    client.status = 3
     db.commit()
     response = schemas.Response(message="Eliminado exitosamente")
     return response
