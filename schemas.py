@@ -39,7 +39,8 @@ class UserUpdate(BaseModel):
     username: str
     firstname: str
     lastname: str
-    password: str
+    password: Optional[str]
+    role_id: Optional[int] | None = None
     status: int
     updated_date: datetime = datetime.utcnow()
 
