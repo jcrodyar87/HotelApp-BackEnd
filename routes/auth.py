@@ -112,7 +112,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme),  db: Session=Dep
 #        raise HTTPException(status_code=400, detail="Inactive user")
 #    return current_user
 
-@router.post("/token", response_model=schemas.Token)
+@router.post("/token")
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
@@ -125,7 +125,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "modules": user.role.modules}
 
 @router.get("/me/",response_model=schemas.UserWithRole, response_model_exclude={'password'})
 async def read_current_user(user: schemas.UserWithRole = Depends(get_current_user)):
