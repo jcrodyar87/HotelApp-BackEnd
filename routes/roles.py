@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from openpyxl import Workbook
 from fastapi.security import OAuth2PasswordBearer
+import json
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -26,18 +27,22 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 @router.get("/",response_model=List[schemas.RoleFull])
 async def show_roles(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     roles = db.query(models.Role).filter(models.Role.status != 3).all()
+    for role in roles:
+        role.modules_list = json.loads(role.modules)
     return roles
 
 @router.get("/{id}",response_model=schemas.Role)
 async def show_role(id: int, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     role = db.query(models.Role).filter_by(id=id).first()
+    role.modules_list =  json.loads(role.modules)
     return role
 
 @router.post("/",response_model=schemas.Role)
 async def create_role(role_params: schemas.Role, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
+    modules = role_params.modules_list
     role = models.Role(
         name = role_params.name,
-        modules = role_params.modules, 
+        modules = json.dumps(modules), 
         status = role_params.status
     )
     db.add(role)
@@ -48,8 +53,9 @@ async def create_role(role_params: schemas.Role, token: str = Depends(oauth2_sch
 @router.put("/{id}",response_model=schemas.Role)
 async def update_role(id: int, role_params: schemas.RoleUpdate, token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)):
     role = db.query(models.Role).filter_by(id=id).first()
+    modules = role_params.modules_list
     role.name = role_params.name
-    role.modules = role_params.modules
+    role.modules = json.dumps(modules)
     role.status = role_params.status
     role.updated_date = datetime.utcnow()
     db.commit()

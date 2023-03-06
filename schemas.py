@@ -5,9 +5,10 @@ from datetime import datetime, date
 class Role(BaseModel):
     id: Optional[int]
     name: str
-    modules: str
+    modules: Optional[str] | None = None
     status: int
-
+    modules_list: Optional[List] | None = None
+    
     class Config:
         orm_mode=True
 class RoleFull(Role):
@@ -15,8 +16,9 @@ class RoleFull(Role):
 
 class RoleUpdate(BaseModel):
     name: str
-    modules: str
+    modules: Optional[str] | None = None
     status: int
+    modules_list: Optional[List] | None = None
     updated_date: datetime = datetime.utcnow()
 
     class Config:
