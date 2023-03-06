@@ -125,7 +125,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer", "modules": user.role.modules, "user":{ "firstname":user.firstname, "lastname": user.lastname, "email": user.username} }
+    return {"access_token": access_token, "token_type": "bearer", "modules": user.role.modules, "user":{ "firstname":user.firstname, "lastname": user.lastname, "email": user.username, "role": user.role.name} }
 
 @router.get("/me/",response_model=schemas.UserWithRole, response_model_exclude={'password'})
 async def read_current_user(user: schemas.UserWithRole = Depends(get_current_user)):
