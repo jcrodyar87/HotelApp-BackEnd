@@ -7,6 +7,7 @@ import schemas, models
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+from sqlalchemy import or_
 from pathlib import Path
 from openpyxl import Workbook
 from fastapi.security import OAuth2PasswordBearer
@@ -30,8 +31,20 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 @router.get("/",response_model=List[schemas.UserWithRole], response_model_exclude={'password','token'})
-async def show_users(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    users = db.query(models.User).filter(models.User.status != 3).all()
+async def show_users(role_id: str = '', status: str = '', text: str = '', token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    users = db.query(models.User)
+    if status != '':
+        users = users.filter(models.User.status == status)
+    if role_id !='':
+        users = users.filter(models.User.role_id == role_id)
+    if text != '':
+        users = users.filter(
+            or_(
+                models.User.firstname.like('%'+text+'%'), 
+                models.User.lastname.like('%'+text+'%'), 
+                models.User.username.like('%'+text+'%')
+            ))
+    users = users.filter(models.User.status != 3).order_by(models.User.username.asc()).all()
     return users
 
 @router.get("/{id}",response_model=schemas.User, response_model_exclude={'password','token'})
