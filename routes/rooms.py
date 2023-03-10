@@ -6,6 +6,7 @@ from config.database import SessionLocal, engine
 import schemas, models
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from sqlalchemy import or_
 from pathlib import Path
 from openpyxl import Workbook
 from fastapi.security import OAuth2PasswordBearer
@@ -24,8 +25,19 @@ def get_db():
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.get("/",response_model=List[schemas.RoomWithRoomType])
-async def show_rooms(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    rooms = db.query(models.Room).filter(models.Room.status != 3).all()
+async def show_rooms(type_id: str = '', status: str = '', text: str = '', token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    rooms = db.query(models.Room)
+    if status != '':
+        rooms = rooms.filter(models.Room.status == status)
+    if type_id !='':
+        rooms = rooms.filter(models.Room.room_type_id == type_id)
+    if text != '':
+        rooms = rooms.filter(
+            or_(
+                models.Room.name.like('%'+text+'%'), 
+                models.Room.description.like('%'+text+'%')
+            ))
+    rooms = rooms.filter(models.Room.status != 3).order_by(models.Room.name.asc()).all()
     return rooms
 
 @router.get("/{id}",response_model=schemas.Room)
