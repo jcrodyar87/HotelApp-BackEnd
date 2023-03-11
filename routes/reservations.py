@@ -153,7 +153,7 @@ async def send_reservation_email(reservation_params: schemas.ReservationEmail, t
     if reservation is None:
         raise HTTPException(status_code=400, detail="No se ha podido enviar el email con el detalle de la reserva")
     html = f"""
-    <p><img style="position:relative;left:33.3%;width:200px" src="http://137.184.29.255/static/img/logo.jpg"></p>
+    <p><img style="position:relative;left:33.3%;width:200px" src="http://api-hotelapp.codenauta.com/static/img/logo.jpg"></p>
     <p style="padding: 10px 20px;font-size: 16px;font-weight: 500;line-height: 32px;text-align: center;">HOTEL LAS PALMERAS DE HUANCHACO<p>
     <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 22px;text-align: center;">Av. Larco 1624 - Sector Los Tumbos – Huanchaco</p>
     <p style="padding: 10px 20px;font-size: 16px;font-weight: 400;line-height: 22px;text-align: center;">Teléfono: 924284185 - (044) 46 11 99</p>
@@ -236,6 +236,6 @@ async def download_pdf(id: int, token: str = Depends(oauth2_scheme), db: Session
 
         file_path = Path(file_name)
         if file_path.is_file():
-            return {"detail": 'http://127.0.0.1:8000/' + file_name}
+            return {"detail": 'http://api-hotelapp.codenauta.com/' + file_name}
         else:
             raise HTTPException(status_code=400, detail="No se ha podido encontrar el pdf de la reserva")

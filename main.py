@@ -4,6 +4,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 #from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import FileResponse 
+
 app = FastAPI()
 
 origins = ["*"]
@@ -35,4 +37,6 @@ def redirect_doc():
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
+@app.get("/admin-angular")
+async def read_index():
+    return FileResponse('/../HotelAppAdmin/index.html')

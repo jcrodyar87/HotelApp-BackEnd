@@ -115,6 +115,6 @@ async def download_excel(db: Session=Depends(get_db)):
     
     file_path = Path(file_name)
     if file_path.is_file():
-        return {"detail": 'http://127.0.0.1:8000/' + file_name}
+        return {"detail": 'http://api-hotelapp.codenauta.com/'  + file_name}
     else:
         raise HTTPException(status_code=400, detail="No se ha podido generar el excel de las habitaciones")
